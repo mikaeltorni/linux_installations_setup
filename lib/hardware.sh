@@ -8,13 +8,16 @@
 #   - enable_nvidia_services(): Enable NVIDIA persistence and DRM services.
 
 nvidia_gpu_detected() {
-  if command -v nvidia-smi >/dev/null 2>&1; then return 0; fi
-  return 1
+  command -v nvidia-smi >/dev/null 2>&1 ||
+    { command -v lspci >/dev/null 2>&1 && lspci -nn | grep -qi 'NVIDIA'; }
 }
 
 choose_nvidia_driver_package() {
   local recommended_driver
-  recommended_driver="$(ubuntu-drivers devices 2>/dev/null | grep -oP 'recommended: \K.*' | head -n 1 || true)"
+  recommended_driver="$(
+    ubuntu-drivers devices 2>/dev/null |
+      awk '/^driver[[:space:]]*:.*recommended/ {print $3; exit}' || true
+  )"
   if [ -n "${NVIDIA_DRIVER_PACKAGE:-}" ]; then
     printf '%s\n' "$NVIDIA_DRIVER_PACKAGE"
   elif [ -n "$recommended_driver" ]; then
@@ -46,7 +49,6 @@ install_nvidia_drivers() {
 
 enable_nvidia_services() {
   msg "Enabling NVIDIA persistence and DRM services"
-  systemctl enable nvidia-persistenced.service || true
-  systemctl enable nvidia-drm modeset.service || true
+  systemctl enable nvidia-persistenced.service 2>/dev/null || true
   systemctl daemon-reload
 }

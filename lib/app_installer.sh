@@ -27,18 +27,30 @@ install_balena_etcher() {
     msg "balena-etcher already in PATH, skipping"
     return 0
   fi
-  msg "Installing Balena Etcher (portable linux-x64, ${ETCHER_VERSION})"
-  apt_install curl unzip
+  msg "Installing Balena Etcher (${ETCHER_VERSION})"
+  apt_install curl jq
   local tmpdir="/tmp/balena-etcher-install"
+  local release_api
+  if [[ "$ETCHER_VERSION" == "latest" ]]; then
+    release_api="https://api.github.com/repos/balena-io/etcher/releases/latest"
+  else
+    release_api="https://api.github.com/repos/balena-io/etcher/releases/tags/v${ETCHER_VERSION#v}"
+  fi
   rm -rf "$tmpdir"
   mkdir -p "$tmpdir"
-  local url="https://github.com/balena-io/etcher/releases/download/v${ETCHER_VERSION}/balenaEtcher-${ETCHER_VERSION}-linux-x64.AppImage"
-  curl -fL "$url" -o "$tmpdir/balena-etcher.AppImage"
-  install -m 0755 -d /opt/balena-etcher
-  cp "$tmpdir/balena-etcher.AppImage" /opt/balena-etcher/balena-etcher.AppImage
-  ln -sf /opt/balena-etcher/balena-etcher.AppImage /usr/local/bin/balena-etcher
+  local url
+  url="$(curl -fsSL "$release_api" |
+    jq -r '.assets[]? | select(.name | test("_amd64[.]deb$")) | .browser_download_url' |
+    head -n 1)"
+  if [ -z "$url" ]; then
+    log "error" "No amd64 Debian package found for Balena Etcher ${ETCHER_VERSION}."
+    rm -rf "$tmpdir"
+    return 1
+  fi
+  curl -fL "$url" -o "$tmpdir/balena-etcher.deb"
+  apt install -y "$tmpdir/balena-etcher.deb"
   rm -rf "$tmpdir"
-  msg "Balena Etcher installed to /opt/balena-etcher"
+  msg "Balena Etcher installed"
 }
 
 install_snaps() {

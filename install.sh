@@ -18,19 +18,17 @@ TARGET_USER="${SUDO_USER:-$USER}"
 TARGET_UID="$(id -u "$TARGET_USER")"
 TARGET_HOME="$(getent passwd "$TARGET_USER" | cut -d: -f6)"
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-CONFIG_DIR="$SCRIPT_DIR/configs"
 RUNTIME_DIR="/run/user/${TARGET_UID}"
 DISPLAY_VAL="${DISPLAY:-:0}"
 USER_BUS="unix:path=${RUNTIME_DIR}/bus"
 
-ETCHER_VERSION="${ETCHER_VERSION:-2.1.4}"
+ETCHER_VERSION="${ETCHER_VERSION:-latest}"
 
 source "$SCRIPT_DIR/lib/helpers.sh"
 source "$SCRIPT_DIR/lib/logging.sh"
 source "$SCRIPT_DIR/lib/hardware.sh"
-source "$SCRIPT_DIR/lib/system_services.sh"
 source "$SCRIPT_DIR/lib/apt_helpers.sh"
-source "$SCRIPT_DIR/lib/app_installer.sh"
+source "$SCRIPT_DIR/lib/system_services.sh"
 
 APT_UPDATED=0
 APT_BASE_PACKAGES=(
@@ -48,28 +46,27 @@ SNAP_APPS=("gitkraken --classic" "spotify" "discord")
 INSTALLER_NO_REBOOT="${INSTALLER_NO_REBOOT:-0}"
 
 main_inner() {
+  ensure_root
   ensure_session_bus
-  
+
   msg "=== Linux Installation Setup ==="
-  
-  # Install base packages
+
   install_base_packages
-  
-  # Install applications
+
   install_google_chrome
   install_balena_etcher
   install_snaps
   install_gh_cli
   ensure_github_login
   install_albert
-  
-  # Hardware detection and drivers
+
   if nvidia_gpu_detected; then
+    install_nvidia_drivers
     enable_nvidia_services
   else
     msg "No NVIDIA GPU detected — skipping driver installation"
   fi
-  
+
   msg "=== Linux Installation Setup Complete ==="
 }
 
