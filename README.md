@@ -2,6 +2,8 @@
 
 **Phase 1 of 7** — Base system packages, hardware detection, and application installation.
 
+Installer run logs are written to the repository-local `.log/` directory.
+
 ## Overview
 
 This repository is the master installer that sets up a fresh Ubuntu 24.04 desktop environment. It handles:
