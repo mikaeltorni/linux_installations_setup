@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # test_hardware.sh — Tests for lib/hardware.sh functions
-# Run with: sudo bash tests/test_hardware.sh
+# Run with: bash tests/test_hardware.sh
 
 set -euo pipefail
 
@@ -10,7 +10,6 @@ PROJECT_DIR="$(dirname "$TEST_SCRIPT_DIR")"
 TARGET_USER="${SUDO_USER:-$USER}"
 TARGET_HOME="$(getent passwd "$TARGET_USER" | cut -d: -f6 2>/dev/null || echo "/home/$TARGET_USER")"
 SCRIPT_DIR="$PROJECT_DIR"
-CONFIG_DIR="$PROJECT_DIR/configs"
 RUNTIME_DIR="/run/user/$(id -u "$TARGET_USER")"
 DISPLAY_VAL="${DISPLAY:-:0}"
 USER_BUS="unix:path=${RUNTIME_DIR}/bus"
@@ -39,6 +38,30 @@ run_tests() {
   check_func_exists choose_nvidia_driver_package
   check_func_exists install_nvidia_drivers
   check_func_exists enable_nvidia_services
+
+  ((total++)) || true
+  echo -n "  selects ubuntu-drivers recommendation... "
+  ubuntu-drivers() {
+    printf 'driver   : nvidia-driver-595-open - distro non-free recommended\n'
+  }
+  if [ "$(choose_nvidia_driver_package)" = "nvidia-driver-595-open" ]; then
+    echo "PASS"
+    ((passed++)) || true
+  else
+    echo "FAIL"
+    ((failed++)) || true
+  fi
+
+  ((total++)) || true
+  echo -n "  detects NVIDIA hardware through lspci... "
+  lspci() { printf '01:00.0 VGA compatible controller: NVIDIA Corporation Device\n'; }
+  if nvidia_gpu_detected; then
+    echo "PASS"
+    ((passed++)) || true
+  else
+    echo "FAIL"
+    ((failed++)) || true
+  fi
 
   ((total++)) || true
   echo -n "  modern NVIDIA fallback order... "
