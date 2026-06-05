@@ -7,7 +7,8 @@ installer.
 
 ## What It Installs
 
-- Base development, desktop, multimedia, remote desktop, and terminal packages
+- Base development, desktop, multimedia, remote desktop, and terminal packages,
+  including Pillow for cursor asset conversion
 - Google Chrome
 - Balena Etcher
 - GitKraken, Spotify, and Discord through Snap

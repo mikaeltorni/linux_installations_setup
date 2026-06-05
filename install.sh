@@ -36,8 +36,8 @@ APT_BASE_PACKAGES=(
   gnome-tweaks easyeffects vlc obs-studio pulseaudio-utils pipewire-audio
   speech-dispatcher espeak-ng sound-theme-freedesktop p7zip-full dconf-cli
   dconf-service build-essential pkg-config libx11-dev libxi-dev libev-dev
-  xbindkeys jq gnome-shell-extension-prefs python3 python3-evdev
-  gnome-screenshot x11-xserver-utils x11-apps icoutils desktop-file-utils
+  xbindkeys jq gnome-shell-extension-prefs python3 python3-evdev python3-pil
+  gnome-screenshot x11-xserver-utils x11-apps desktop-file-utils
   remmina remmina-plugin-rdp remmina-plugin-secret tmux
 )
 

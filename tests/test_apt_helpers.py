@@ -72,6 +72,13 @@ def test_apt_base_packages_populated():
     assert len(apt_base_packages) > 0
 
 
+def test_cursor_extraction_dependency_is_installed():
+    """Purple Cross cursor extraction should install Pillow."""
+    install_script = (ROOT_DIR / "install.sh").read_text()
+
+    assert "python3-pil" in install_script
+
+
 def test_snap_apps_populated():
     """SNAP_APPS should be populated with apps."""
     snap_apps = ["gitkraken --classic", "spotify", "discord"]
