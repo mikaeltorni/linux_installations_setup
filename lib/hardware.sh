@@ -5,7 +5,7 @@
 #   - nvidia_gpu_detected(): Check if an NVIDIA GPU is present.
 #   - choose_nvidia_driver_package(): Select the preferred NVIDIA driver package.
 #   - install_nvidia_drivers(): Install NVIDIA drivers and CUDA toolkit.
-#   - enable_nvidia_services(): Enable NVIDIA persistence and DRM services.
+#   - enable_nvidia_services(): Enable the NVIDIA persistence daemon service.
 
 nvidia_gpu_detected() {
   command -v nvidia-smi >/dev/null 2>&1 ||
@@ -48,7 +48,16 @@ install_nvidia_drivers() {
 }
 
 enable_nvidia_services() {
-  msg "Enabling NVIDIA persistence and DRM services"
-  systemctl enable nvidia-persistenced.service 2>/dev/null || true
+  # Enable the NVIDIA persistence daemon so the driver state is kept warm
+  # across application start/stop cycles. Best-effort: the unit is absent on
+  # some driver packages / Ubuntu releases, so failures are tolerated.
+  #
+  # Returns: 0 always (enablement is non-fatal to the overall install).
+  msg "Enabling NVIDIA persistence daemon service"
+  if systemctl enable nvidia-persistenced.service 2>/dev/null; then
+    msg "Enabled nvidia-persistenced.service"
+  else
+    log "warn" "nvidia-persistenced.service not available; skipping enable"
+  fi
   systemctl daemon-reload
 }
