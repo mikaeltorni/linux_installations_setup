@@ -62,6 +62,7 @@ The tests simulate helper behavior and do not install packages:
 
 ```bash
 python3 tests/test_apt_helpers.py
+python3 tests/test_patch_extension_metadata.py
 for test_file in tests/*.sh; do
   bash "$test_file"
 done
@@ -71,7 +72,7 @@ For syntax checks:
 
 ```bash
 bash -n install.sh lib/*.sh tests/*.sh
-python3 -m py_compile scripts/patch_extension_metadata.py tests/test_apt_helpers.py
+python3 -m py_compile scripts/patch_extension_metadata.py tests/*.py
 ```
 
 ## Notes
