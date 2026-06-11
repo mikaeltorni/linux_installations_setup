@@ -83,3 +83,7 @@ python3 -m py_compile scripts/patch_extension_metadata.py tests/*.py
   `INSTALLER_REQUIRE_GITHUB_LOGIN=1`.
 - NVIDIA service enablement is best-effort because service names vary by
   driver package and Ubuntu release.
+- `scripts/patch_extension_metadata.py` is a standalone helper that adds a
+  GNOME `shell-version` entry to an extension's `metadata.json`. It is invoked
+  by the wider installation workflow:
+  `python3 scripts/patch_extension_metadata.py <metadata.json> <shell-version>`.
