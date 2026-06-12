@@ -1,5 +1,7 @@
 # Linux Installation Setup
 
+> Part of [installation_scripts](https://github.com/mikaeltorni/installation_scripts) — the master installer that orchestrates a productivity-focused Ubuntu 24.04 desktop setup (workspaces, hotkeys, window tiling, programming tools, and more).
+
 Installs the base desktop packages and applications used on an Ubuntu GNOME
 workstation. This repository is phase 1 of the larger installation workflow;
 repository cloning and later configuration phases belong in the master
