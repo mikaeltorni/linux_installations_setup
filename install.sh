@@ -37,7 +37,7 @@ APT_BASE_PACKAGES=(
   speech-dispatcher espeak-ng sound-theme-freedesktop p7zip-full dconf-cli
   dconf-service build-essential pkg-config libx11-dev libxi-dev libev-dev
   xbindkeys jq gnome-shell-extension-prefs python3 python3-evdev python3-pil
-  gnome-screenshot x11-xserver-utils x11-apps desktop-file-utils
+  gnome-screenshot x11-xserver-utils x11-apps xdotool desktop-file-utils
   remmina remmina-plugin-rdp remmina-plugin-secret tmux
   virtinst virt-manager libvirt-daemon-system libvirt-clients bridge-utils
 )

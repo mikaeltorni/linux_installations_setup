@@ -79,6 +79,13 @@ def test_cursor_extraction_dependency_is_installed():
     assert "python3-pil" in install_script
 
 
+def test_x11_shell_reload_dependency_is_installed():
+    """GNOME Shell's documented X11 reload sequence should install xdotool."""
+    install_script = (ROOT_DIR / "install.sh").read_text()
+
+    assert "xdotool" in install_script
+
+
 def test_snap_apps_populated():
     """SNAP_APPS should be populated with apps."""
     snap_apps = ["gitkraken --classic", "spotify", "discord"]
