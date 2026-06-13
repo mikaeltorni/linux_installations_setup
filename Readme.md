@@ -80,8 +80,9 @@ python3 -m py_compile scripts/patch_extension_metadata.py tests/*.py
 ## Module Layout
 
 - `lib/apt_packages.sh`: APT cache and base package installation
-- `lib/app_installer.sh`: Chrome, Etcher, Snap, and GitHub CLI installation
+- `lib/app_installer.sh`: Chrome, Etcher, and GitHub CLI installation
 - `lib/albert_installer.sh`: Albert OBS series detection, installation, and autostart
+- `lib/snap_installer.sh`: Snap application installation
 - `lib/hardware.sh`: NVIDIA detection, driver selection, and service setup
 - `lib/system_services.sh`: GitHub CLI authentication
 

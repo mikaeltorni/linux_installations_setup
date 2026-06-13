@@ -1,15 +1,16 @@
 #!/usr/bin/env bash
-# app_installer.sh — Application installers (Chrome, Etcher, snaps, GH CLI)
+# app_installer.sh — Application installers (Chrome, Etcher, GH CLI)
 #
 # Components:
 #   - install_google_chrome(): Download and install Google Chrome stable from official repo.
 #   - install_balena_etcher(): Download, extract, and install Balena Etcher portable.
-#   - install_snaps(): Install snap applications (installs snapd if missing).
 #   - install_gh_cli(): Add GitHub CLI APT repo and install gh.
 #   - lib/albert_installer.sh: Albert repository detection and installation.
+#   - lib/snap_installer.sh: Snap application installation.
 
 _APP_INSTALLER_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 source "$_APP_INSTALLER_DIR/albert_installer.sh"
+source "$_APP_INSTALLER_DIR/snap_installer.sh"
 unset _APP_INSTALLER_DIR
 
 install_google_chrome() {
@@ -54,29 +55,6 @@ install_balena_etcher() {
   apt install -y "$tmpdir/balena-etcher.deb"
   rm -rf "$tmpdir"
   msg "Balena Etcher installed"
-}
-
-install_snaps() {
-  if [ ${#SNAP_APPS[@]} -eq 0 ]; then
-    log "warn" "SNAP_APPS is empty, skipping snap installation"
-    return 0
-  fi
-  msg "Installing snap applications"
-  apt_install snapd
-  if command -v snap >/dev/null 2>&1; then
-    for app_spec in "${SNAP_APPS[@]}"; do
-      read -r snap_name snap_options <<< "$app_spec"
-      if [ -z "${snap_options:-}" ]; then
-        msg "  Installing snap: $snap_name"
-        snap install "$snap_name" || log "warn" "Failed to install snap: $snap_name"
-      else
-        msg "  Installing snap: $snap_name with options: $snap_options"
-        snap install "$snap_name" $snap_options || log "warn" "Failed to install snap: $snap_name $snap_options"
-      fi
-    done
-  else
-    log "error" "snapd installed but snap command not available; skipping snap apps"
-  fi
 }
 
 install_gh_cli() {
