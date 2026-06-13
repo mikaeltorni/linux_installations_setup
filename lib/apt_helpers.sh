@@ -3,7 +3,7 @@
 #
 # This file now sources modular components:
 #   - lib/apt_packages.sh: APT cache management and base package installation.
-#   - lib/app_installer.sh: Application installers (Chrome, Etcher, snaps, GH CLI, Albert).
+#   - lib/app_installer.sh: Application installers and Albert module loading.
 
 source "$SCRIPT_DIR/lib/apt_packages.sh"
 source "$SCRIPT_DIR/lib/app_installer.sh"

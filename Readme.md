@@ -77,6 +77,17 @@ bash -n install.sh lib/*.sh tests/*.sh
 python3 -m py_compile scripts/patch_extension_metadata.py tests/*.py
 ```
 
+## Module Layout
+
+- `lib/apt_packages.sh`: APT cache and base package installation
+- `lib/app_installer.sh`: Chrome, Etcher, Snap, and GitHub CLI installation
+- `lib/albert_installer.sh`: Albert OBS series detection, installation, and autostart
+- `lib/hardware.sh`: NVIDIA detection, driver selection, and service setup
+- `lib/system_services.sh`: GitHub CLI authentication
+
+`lib/apt_helpers.sh` remains the compatibility entry point for package and
+application installer functions.
+
 ## Notes
 
 - Package and application installs are designed to be rerunnable.
