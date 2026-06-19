@@ -101,3 +101,33 @@ application installer functions.
   GNOME `shell-version` entry to an extension's `metadata.json`. It is invoked
   by the wider installation workflow:
   `python3 scripts/patch_extension_metadata.py <metadata.json> <shell-version>`.
+
+## Component selection
+
+This repository's `install.sh` participates in the shared installer
+component menu (see the [`installation_scripts`](https://github.com/mikaeltorni/installation_scripts)
+master installer). Run standalone, it offers an interactive submenu on a
+terminal; the master installer drives it non-interactively.
+
+```bash
+bash install.sh                 # interactive component selection (TTY), else defaults
+bash install.sh --default       # install all default-on components, no prompts
+bash install.sh --all           # install every component, no prompts
+bash install.sh --select a,b    # install exactly these component ids
+bash install.sh --list-components  # print: id<TAB>label<TAB>default
+```
+
+In the interactive menu, **space** toggles a component, `a`/`n` select all
+or none, and **Enter** installs the selection. Components:
+
+| Component id | Description | Default |
+|---|---|---|
+| `base_packages` | Base APT packages and utilities | on |
+| `chrome` | Google Chrome | on |
+| `etcher` | balenaEtcher | on |
+| `snaps` | Snap apps (GitKraken, Spotify, Discord) | on |
+| `gh_cli` | GitHub CLI | on |
+| `github_login` | GitHub login (gh auth) | on |
+| `albert` | Albert launcher | on |
+| `nvidia` | NVIDIA drivers (if a GPU is detected) | on |
+

@@ -44,31 +44,31 @@ APT_BASE_PACKAGES=(
 
 SNAP_APPS=("gitkraken --classic" "spotify" "discord")
 
+# Component selection runtime and this repository's component manifest. The
+# manifest maps each component id to an install_* step from the lib files above.
+# Load the shared installer component framework. Its single source of truth is
+# the linux_installation_scripts_functions repository (cloned as a sibling by
+# installation_scripts, or downloaded on demand) -- no per-repo vendored copy.
+for __isc_d in "${ISC_FUNCTIONS_DIR:-}" \
+               "$SCRIPT_DIR/../linux_installation_scripts_functions" \
+               "$HOME/projects/linux_installation_scripts_functions"; do
+  [ -n "$__isc_d" ] && [ -f "$__isc_d/component_loader.sh" ] && { source "$__isc_d/component_loader.sh"; break; }
+done
+declare -F isc_activate_components >/dev/null 2>&1 || \
+  source <(curl -fsSL "https://raw.githubusercontent.com/mikaeltorni/linux_installation_scripts_functions/${ISC_FUNCTIONS_REF:-master}/component_loader.sh")
+isc_activate_components
+source "$SCRIPT_DIR/installer/components.sh"
+
 INSTALLER_NO_REBOOT="${INSTALLER_NO_REBOOT:-0}"
 
+# main_inner — install the selected base-system components. Selection (root
+# preflight, NVIDIA detection, etc.) is resolved by component_main.
 main_inner() {
-  ensure_root
-  ensure_session_bus
-
   msg "=== Linux Installation Setup ==="
-
-  install_base_packages
-
-  install_google_chrome
-  install_balena_etcher
-  install_snaps
-  install_gh_cli
-  ensure_github_login
-  install_albert
-
-  if nvidia_gpu_detected; then
-    install_nvidia_drivers
-    enable_nvidia_services
-  else
-    msg "No NVIDIA GPU detected — skipping driver installation"
-  fi
-
+  component_main "$@"
+  local rc=$?
   msg "=== Linux Installation Setup Complete ==="
+  return $rc
 }
 
 run_and_log_with_reboot() {
@@ -91,5 +91,10 @@ run_and_log_with_reboot() {
 }
 
 if [[ "${BASH_SOURCE[0]}" == "${0}" ]]; then
+    # Listing/help must print only their own output (the master installer parses
+    # --list-components) and must not require root or trigger a reboot.
+    case "${1:-}" in
+      --list-components|--help|-h) component_main "$@"; exit $? ;;
+    esac
     run_and_log_with_reboot "$@"
 fi
