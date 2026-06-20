@@ -37,6 +37,7 @@ install_nvidia_drivers() {
   msg "Installing NVIDIA drivers and CUDA toolkit"
   local driver_package
   driver_package="$(choose_nvidia_driver_package)"
+  log "debug" "Selected NVIDIA driver package: ${driver_package:-<none>}"
   if [ -n "$driver_package" ]; then
     msg "Installing NVIDIA driver package: $driver_package"
     apt_install "$driver_package" || true

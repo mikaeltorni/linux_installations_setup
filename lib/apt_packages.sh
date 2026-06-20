@@ -22,6 +22,7 @@ apt_update_once() {
 
 apt_install() {
   apt_update_once
+  log "debug" "apt install: $*"
   DEBIAN_FRONTEND=noninteractive apt install -y "$@"
 }
 
