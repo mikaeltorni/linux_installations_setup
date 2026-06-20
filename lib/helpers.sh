@@ -11,9 +11,17 @@
 # Must be sourced after TARGET_USER, TARGET_HOME,
 # RUNTIME_DIR, DISPLAY_VAL, USER_BUS are set.
 
+# msg — Print a user-facing status line ("==> text") to stdout.
+#   $@: Message text (joined with spaces).
 msg() { printf "\n==> %s\n" "$*"; }
+
+# need_cmd — Return 0 if a command is available in PATH, non-zero otherwise.
+#   $1 (cmd): Command name to look up.
 need_cmd() { command -v "$1" >/dev/null 2>&1; }
 
+# run_as_target — Run a command as TARGET_USER with that user's desktop session
+# environment (HOME, XDG_RUNTIME_DIR, D-Bus, DISPLAY) populated.
+#   $@ (cmd...): Command and arguments to execute as the target user.
 run_as_target() {
   sudo -H -u "$TARGET_USER" env \
     HOME="$TARGET_HOME" \

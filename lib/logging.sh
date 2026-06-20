@@ -12,6 +12,18 @@ _LOG_LEVEL_ERROR=40
 INSTALLER_LOG_LEVEL="${INSTALLER_LOG_LEVEL:-info}"
 INSTALLER_PRODUCTION="${INSTALLER_PRODUCTION:-0}"
 
+# log — Emit a timestamped, level-filtered log line to stderr.
+#
+# Parameters:
+#   $1 (level): Severity — one of debug | info | warn/warning | error.
+#               Unknown values are treated as info.
+#   $2..$N (msg): Message text; remaining args are joined with spaces.
+#
+# Behavior:
+#   Lines below INSTALLER_LOG_LEVEL are dropped. When INSTALLER_PRODUCTION=1 the
+#   line is emitted as a JSON object; otherwise as "[ts] [LEVEL] message".
+#
+# Returns: 0 always.
 log() {
   local level="${1:-info}" msg="${*:2}"
   local threshold current_threshold

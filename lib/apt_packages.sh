@@ -20,6 +20,12 @@ apt_update_once() {
   fi
 }
 
+# apt_install — Install one or more APT packages non-interactively.
+#
+# Parameters:
+#   $@ (packages...): Package names (and apt options) to pass to `apt install`.
+#
+# Ensures the apt cache has been refreshed once this session before installing.
 apt_install() {
   apt_update_once
   log "debug" "apt install: $*"
