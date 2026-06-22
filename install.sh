@@ -52,6 +52,7 @@ APT_BASE_PACKAGES=(
   xbindkeys jq gnome-shell-extension-prefs python3 python3-evdev python3-pil
   gnome-screenshot x11-xserver-utils x11-apps xdotool desktop-file-utils
   remmina remmina-plugin-rdp remmina-plugin-secret tmux
+  gnome-keyring gir1.2-secret-1 python3-gi dbus-daemon
   virtinst virt-manager libvirt-daemon-system libvirt-clients bridge-utils
 )
 

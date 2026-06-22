@@ -79,6 +79,14 @@ def test_cursor_extraction_dependency_is_installed():
     assert "python3-pil" in install_script
 
 
+def test_passwordless_keyring_migration_dependencies_are_installed():
+    """Base packages must support the configuration repo's keyring migration."""
+    install_script = (ROOT_DIR / "install.sh").read_text()
+
+    for package in ("gnome-keyring", "gir1.2-secret-1", "python3-gi", "dbus-daemon"):
+        assert package in install_script
+
+
 def test_x11_shell_reload_dependency_is_installed():
     """GNOME Shell's documented X11 reload sequence should install xdotool."""
     install_script = (ROOT_DIR / "install.sh").read_text()
