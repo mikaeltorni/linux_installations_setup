@@ -13,7 +13,8 @@ SCRIPT_DIR="$PROJECT_DIR"
 RUNTIME_DIR="/run/user/$(id -u "$TARGET_USER")"
 DISPLAY_VAL="${DISPLAY:-:0}"
 USER_BUS="unix:path=${RUNTIME_DIR}/bus"
-source "$PROJECT_DIR/lib/helpers.sh"
+log() { :; }  # silence shared-helper debug logging in this harness
+source "$PROJECT_DIR/../linux_installation_scripts_functions/installer_helpers.sh"
 source "$PROJECT_DIR/lib/apt_helpers.sh"
 source "$PROJECT_DIR/lib/system_services.sh"
 

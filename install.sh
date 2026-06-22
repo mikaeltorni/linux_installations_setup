@@ -24,8 +24,21 @@ USER_BUS="unix:path=${RUNTIME_DIR}/bus"
 
 ETCHER_VERSION="${ETCHER_VERSION:-latest}"
 
-source "$SCRIPT_DIR/lib/helpers.sh"
 source "$SCRIPT_DIR/lib/logging.sh"
+
+# Load the shared installer framework + shared install-time helpers (single
+# source of truth in linux_installation_scripts_functions) before any library
+# uses run_as_target/msg/need_cmd/ensure_root. No vendored copy: resolve a
+# sibling checkout or download on demand.
+for __isc_d in "${ISC_FUNCTIONS_DIR:-}" \
+               "$SCRIPT_DIR/../linux_installation_scripts_functions" \
+               "$HOME/projects/linux_installation_scripts_functions"; do
+  [ -n "$__isc_d" ] && [ -f "$__isc_d/component_loader.sh" ] && { source "$__isc_d/component_loader.sh"; break; }
+done
+declare -F isc_load_helpers >/dev/null 2>&1 || \
+  source <(curl -fsSL "https://raw.githubusercontent.com/mikaeltorni/linux_installation_scripts_functions/${ISC_FUNCTIONS_REF:-master}/component_loader.sh")
+isc_load_helpers
+
 source "$SCRIPT_DIR/lib/hardware.sh"
 source "$SCRIPT_DIR/lib/apt_helpers.sh"
 source "$SCRIPT_DIR/lib/system_services.sh"
@@ -46,16 +59,8 @@ SNAP_APPS=("gitkraken --classic" "spotify" "discord")
 
 # Component selection runtime and this repository's component manifest. The
 # manifest maps each component id to an install_* step from the lib files above.
-# Load the shared installer component framework. Its single source of truth is
-# the linux_installation_scripts_functions repository (cloned as a sibling by
-# installation_scripts, or downloaded on demand) -- no per-repo vendored copy.
-for __isc_d in "${ISC_FUNCTIONS_DIR:-}" \
-               "$SCRIPT_DIR/../linux_installation_scripts_functions" \
-               "$HOME/projects/linux_installation_scripts_functions"; do
-  [ -n "$__isc_d" ] && [ -f "$__isc_d/component_loader.sh" ] && { source "$__isc_d/component_loader.sh"; break; }
-done
-declare -F isc_activate_components >/dev/null 2>&1 || \
-  source <(curl -fsSL "https://raw.githubusercontent.com/mikaeltorni/linux_installation_scripts_functions/${ISC_FUNCTIONS_REF:-master}/component_loader.sh")
+# The framework was already resolved above (for isc_load_helpers); activate the
+# component runtime from the same checkout.
 isc_activate_components
 source "$SCRIPT_DIR/installer/components.sh"
 
