@@ -18,7 +18,12 @@ import json
 import sys
 from pathlib import Path
 
+from logging_utils import get_logger, log_call
 
+LOGGER = get_logger("patch_extension_metadata", "patch_extension_metadata.log")
+
+
+@log_call(LOGGER)
 def patch_shell_version(metadata_path: str | Path, shell_version: str) -> bool:
     """Patch a GNOME extension metadata.json to include a shell-version entry.
 
@@ -49,6 +54,7 @@ def patch_shell_version(metadata_path: str | Path, shell_version: str) -> bool:
     path = Path(metadata_path)
 
     if not path.is_file():
+        LOGGER.error("Metadata file is missing: %s", path)
         raise FileNotFoundError(f"Metadata file not found: {path}")
 
     with open(path, "r", encoding="utf-8") as f:
@@ -70,11 +76,15 @@ def patch_shell_version(metadata_path: str | Path, shell_version: str) -> bool:
     if modified:
         with open(path, "w", encoding="utf-8") as f:
             json.dump(data, f)
+        LOGGER.info("Patched shell-version in metadata.json to include %s", shell_version)
         print(f"Patched shell-version in metadata.json to include {shell_version}")
+    else:
+        LOGGER.info("Shell version already present: %s", shell_version)
 
     return modified
 
 
+@log_call(LOGGER)
 def main() -> int:
     """CLI entry point for patch_extension_metadata.py.
 
@@ -86,6 +96,7 @@ def main() -> int:
         0 on success, 1 on error.
     """
     if len(sys.argv) != 3:
+        LOGGER.error("Invalid argument count: %d", len(sys.argv) - 1)
         print(f"Usage: {sys.argv[0]} <metadata.json> <shell-version>", file=sys.stderr)
         return 1
 
@@ -98,9 +109,11 @@ def main() -> int:
             print(f"Shell version '{shell_version}' already present — no changes made.")
         return 0
     except FileNotFoundError as exc:
+        LOGGER.error("Metadata patch failed: %s", exc)
         print(f"Error: {exc}", file=sys.stderr)
         return 1
     except json.JSONDecodeError as exc:
+        LOGGER.error("Invalid metadata JSON in %s: %s", metadata_path, exc)
         print(f"Error: Invalid JSON in {metadata_path}: {exc}", file=sys.stderr)
         return 1
 
