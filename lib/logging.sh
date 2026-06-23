@@ -12,6 +12,26 @@ _LOG_LEVEL_ERROR=40
 INSTALLER_LOG_LEVEL="${INSTALLER_LOG_LEVEL:-info}"
 INSTALLER_PRODUCTION="${INSTALLER_PRODUCTION:-0}"
 
+# _installer_log_timestamp — Return the current local timestamp for log records.
+#
+# Behavior:
+#   Tests and installer probes may deliberately run with a stripped PATH. Prefer
+#   date from PATH, then common absolute locations, and finally emit a stable
+#   sentinel instead of failing the caller's workflow.
+#
+# Returns: 0 always.
+_installer_log_timestamp() {
+  if command -v date >/dev/null 2>&1; then
+    date '+%Y-%m-%d %H:%M:%S' 2>/dev/null || printf 'unknown-time'
+  elif [[ -x /usr/bin/date ]]; then
+    /usr/bin/date '+%Y-%m-%d %H:%M:%S' 2>/dev/null || printf 'unknown-time'
+  elif [[ -x /bin/date ]]; then
+    /bin/date '+%Y-%m-%d %H:%M:%S' 2>/dev/null || printf 'unknown-time'
+  else
+    printf 'unknown-time'
+  fi
+}
+
 # log — Emit a timestamped, level-filtered log line to stderr.
 #
 # Parameters:
@@ -42,10 +62,12 @@ log() {
   esac
   if (( threshold < current_threshold )); then return 0; fi
   local timestamp level_upper="${level^^}"
-  timestamp="$(date '+%Y-%m-%d %H:%M:%S')"
+  timestamp="$(_installer_log_timestamp)"
   if [[ "${INSTALLER_PRODUCTION}" == "1" ]]; then
+    msg="${msg//\\/\\\\}"
+    msg="${msg//\"/\\\"}"
     printf '{"timestamp":"%s","level":"%s","message":"%s"}\n' \
-      "$timestamp" "$level_upper" "$(echo "$msg" | sed 's/"/\\"/g')" >&2
+      "$timestamp" "$level_upper" "$msg" >&2
   else
     printf "[%s] [%s] %s\n" "$timestamp" "$level_upper" "$msg" >&2
   fi
