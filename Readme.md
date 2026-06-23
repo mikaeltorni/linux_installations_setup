@@ -77,6 +77,7 @@ The tests simulate helper behavior and do not install packages:
 
 ```bash
 python3 tests/test_apt_helpers.py
+python3 tests/test_logging_utils.py
 python3 tests/test_patch_extension_metadata.py
 for test_file in tests/*.sh; do
   bash "$test_file"
@@ -87,7 +88,7 @@ For syntax checks:
 
 ```bash
 bash -n install.sh lib/*.sh tests/*.sh
-python3 -m py_compile scripts/patch_extension_metadata.py tests/*.py
+python3 -m py_compile scripts/*.py tests/*.py
 ```
 
 ## Module Layout
@@ -98,6 +99,8 @@ python3 -m py_compile scripts/patch_extension_metadata.py tests/*.py
 - `lib/snap_installer.sh`: Snap application installation
 - `lib/hardware.sh`: NVIDIA detection, driver selection, and service setup
 - `lib/system_services.sh`: GitHub CLI authentication
+- `lib/logging.sh`: Centralized Bash installer logging
+- `scripts/logging_utils.py`: Centralized Python file logging and call tracing
 
 `lib/apt_helpers.sh` remains the compatibility entry point for package and
 application installer functions.
@@ -143,4 +146,3 @@ or none, and **Enter** installs the selection. Components:
 | `github_login` | GitHub login (gh auth) | on |
 | `albert` | Albert launcher | on |
 | `nvidia` | NVIDIA drivers (if a GPU is detected) | on |
-

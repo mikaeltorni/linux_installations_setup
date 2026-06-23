@@ -24,8 +24,9 @@ def snap_script(body: str) -> str:
     return "\n".join(
         [
             "set -euo pipefail",
+            "INSTALLER_LOG_LEVEL=debug",
+            "source lib/logging.sh",
             "msg() { printf 'msg:%s\\n' \"$*\"; }",
-            "log() { printf 'log:%s:%s\\n' \"$1\" \"$2\"; }",
             "need_cmd() { return 1; }",
             "apt_install() { printf 'apt:%s\\n' \"$*\"; }",
             "run_as_target() { :; }",
@@ -49,7 +50,7 @@ def test_empty_app_list_skips_snapd_installation():
     )
 
     assert proc.returncode == 0, proc.stderr
-    assert "SNAP_APPS is empty" in proc.stdout
+    assert "SNAP_APPS is empty" in proc.stderr
     assert "apt:snapd" not in proc.stdout
 
 
@@ -69,7 +70,7 @@ def test_missing_snap_command_is_reported_after_snapd_installation():
 
     assert proc.returncode == 0, proc.stderr
     assert "apt:snapd" in proc.stdout
-    assert "snap command not available" in proc.stdout
+    assert "snap command not available" in proc.stderr
 
 
 def test_installs_snap_specs_with_their_options():
@@ -110,5 +111,5 @@ def test_failed_snap_does_not_stop_remaining_installs():
     )
 
     assert proc.returncode == 0, proc.stderr
-    assert "Failed to install snap: broken" in proc.stdout
+    assert "Failed to install snap: broken" in proc.stderr
     assert "snap:install spotify" in proc.stdout

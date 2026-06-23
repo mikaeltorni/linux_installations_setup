@@ -26,8 +26,9 @@ def test_detect_albert_obs_series_noble():
         "\n".join(
             [
                 "set -euo pipefail",
+                "INSTALLER_LOG_LEVEL=error",
+                "source lib/logging.sh",
                 "msg() { :; }",
-                "log() { :; }",
                 "need_cmd() { command -v \"$1\" >/dev/null 2>&1; }",
                 "apt_install() { :; }",
                 "run_as_target() { \"$@\"; }",
@@ -48,8 +49,9 @@ def test_detect_albert_obs_series_override():
             [
                 "set -euo pipefail",
                 "ALBERT_OBS_SERIES=xUbuntu_25.04",
+                "INSTALLER_LOG_LEVEL=error",
+                "source lib/logging.sh",
                 "msg() { :; }",
-                "log() { :; }",
                 "need_cmd() { command -v \"$1\" >/dev/null 2>&1; }",
                 "apt_install() { :; }",
                 "run_as_target() { \"$@\"; }",

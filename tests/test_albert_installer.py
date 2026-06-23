@@ -25,8 +25,9 @@ def albert_script(body: str) -> str:
         [
             "set -euo pipefail",
             "TARGET_HOME=/home/test-user",
+            "INSTALLER_LOG_LEVEL=debug",
+            "source lib/logging.sh",
             "msg() { :; }",
-            "log() { printf 'log:%s:%s\\n' \"$1\" \"$2\"; }",
             "need_cmd() { return 1; }",
             "apt_install() { :; }",
             "run_as_target() { printf 'user:%s\\n' \"$*\"; }",
@@ -69,7 +70,7 @@ def test_unsupported_release_skips_install():
     )
 
     assert proc.returncode == 0, proc.stderr
-    assert "Could not detect Ubuntu codename" in proc.stdout
+    assert "Could not detect Ubuntu codename" in proc.stderr
 
 
 def test_failed_install_removes_repository_files():
@@ -91,7 +92,7 @@ def test_failed_install_removes_repository_files():
     )
 
     assert proc.returncode == 0, proc.stderr
-    assert "Failed to install albert" in proc.stdout
+    assert "Failed to install albert" in proc.stderr
     assert "home:manuelschneid3r.list" in proc.stdout
     assert "home_manuelschneid3r.gpg" in proc.stdout
 
