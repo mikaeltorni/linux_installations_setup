@@ -99,18 +99,17 @@ APT_VIRTUALIZATION=(virtinst virt-manager libvirt-daemon-system libvirt-clients 
 
 # Union of every group; kept for backward compatibility and reference.
 APT_BASE_PACKAGES=(
-  gnome-shell-extension-manager chrome-gnome-shell make gettext kitty git curl gpg
-  gnome-tweaks easyeffects vlc obs-studio pulseaudio-utils pipewire-audio
-  speech-dispatcher espeak-ng sound-theme-freedesktop p7zip-full dconf-cli
-  dconf-service build-essential pkg-config libx11-dev libxi-dev libev-dev
-  xbindkeys jq gnome-shell-extension-prefs python3 python3-evdev python3-pil
-  gnome-screenshot x11-xserver-utils x11-apps xdotool desktop-file-utils
-  remmina remmina-plugin-rdp remmina-plugin-secret tmux
-  gnome-keyring gir1.2-secret-1 python3-gi dbus-daemon
-  virtinst virt-manager libvirt-daemon-system libvirt-clients bridge-utils
+  "${APT_CORE_UTILS[@]}" "${APT_GNOME_TOOLING[@]}" "${APT_BUILD_TOOLS[@]}"
+  "${APT_TERMINAL[@]}" "${APT_PYTHON[@]}" "${APT_DESKTOP_UTILS[@]}"
+  "${APT_AUDIO_SPEECH[@]}" "${APT_MULTIMEDIA[@]}" "${APT_KEYRING[@]}"
+  "${APT_REMOTE_DESKTOP[@]}" "${APT_TMUX[@]}" "${APT_VIRTUALIZATION[@]}"
 )
 
-SNAP_APPS=("gitkraken --classic" "spotify" "discord")
+# Snap applications, split so each is independently selectable via components.
+SNAP_GITKRAKEN=("gitkraken --classic")
+SNAP_SPOTIFY=("spotify")
+SNAP_DISCORD=("discord")
+SNAP_APPS=("${SNAP_GITKRAKEN[@]}" "${SNAP_SPOTIFY[@]}" "${SNAP_DISCORD[@]}")
 
 # Component selection runtime and this repository's component manifest. The
 # manifest maps each component id to an install_* step from the lib files above.
