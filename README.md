@@ -136,12 +136,28 @@ bash install.sh --list-components  # print: id<TAB>label<TAB>default
 In the interactive menu, **space** toggles a component, `a`/`n` select all
 or none, and **Enter** installs the selection. Components:
 
+Every feature is its own independently selectable component, all default-on,
+so a clean install reproduces the full setup while you can deselect anything.
+
 | Component id | Description | Default |
 |---|---|---|
-| `base_packages` | Base APT packages and utilities | on |
+| `core_utils` | Core CLI utilities (git, curl, gpg, jq, 7zip) | on |
+| `gnome_tooling` | GNOME Shell extension & tweak tooling | on |
+| `build_tools` | Build toolchain & development headers | on |
+| `terminal` | Kitty terminal emulator | on |
+| `python_runtime` | Python runtime & libraries | on |
+| `desktop_utils` | X11 & desktop utilities (xdotool, screenshot) | on |
+| `audio_speech` | Audio stack & speech synthesis | on |
+| `multimedia` | Multimedia apps (VLC, OBS, EasyEffects) | on |
+| `keyring` | GNOME Keyring & Secret Service libraries | on |
+| `remote_desktop` | Remmina remote desktop client | on |
+| `tmux` | tmux terminal multiplexer | on |
+| `virtualization` | KVM/libvirt virtualization stack | on |
 | `chrome` | Google Chrome | on |
 | `etcher` | balenaEtcher | on |
-| `snaps` | Snap apps (GitKraken, Spotify, Discord) | on |
+| `snap_gitkraken` | GitKraken (snap) | on |
+| `snap_spotify` | Spotify (snap) | on |
+| `snap_discord` | Discord (snap) | on |
 | `gh_cli` | GitHub CLI | on |
 | `github_login` | GitHub login (gh auth) | on |
 | `albert` | Albert launcher | on |
