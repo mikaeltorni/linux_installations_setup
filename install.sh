@@ -44,6 +44,60 @@ source "$SCRIPT_DIR/lib/apt_helpers.sh"
 source "$SCRIPT_DIR/lib/system_services.sh"
 
 APT_UPDATED=0
+
+# Base packages are split into feature groups so every feature is an
+# independently selectable component (see installer/components.sh). Each group
+# is default-on, so a clean install reproduces the full package set unless the
+# user deselects a group. The aggregate APT_BASE_PACKAGES is retained as the
+# union of all groups for backward compatibility and documentation/tests.
+
+# Core CLI utilities used throughout the setup family (git, downloads, signing,
+# JSON parsing, archive extraction).
+APT_CORE_UTILS=(git curl gpg jq p7zip-full)
+
+# GNOME Shell extension and tweak tooling consumed by the configuration repos.
+APT_GNOME_TOOLING=(
+  gnome-shell-extension-manager chrome-gnome-shell gnome-tweaks
+  gnome-shell-extension-prefs dconf-cli dconf-service
+)
+
+# Build toolchain and development headers for compiling extensions/helpers.
+APT_BUILD_TOOLS=(make gettext build-essential pkg-config libx11-dev libxi-dev libev-dev)
+
+# Kitty terminal emulator.
+APT_TERMINAL=(kitty)
+
+# Python runtime and libraries (evdev for hotkeys, Pillow for cursor assets,
+# PyGObject for the keyring migration).
+APT_PYTHON=(python3 python3-evdev python3-pil python3-gi)
+
+# X11 and desktop utilities (screenshotting, the documented Alt+F2 shell reload,
+# desktop entry handling, key binding daemon).
+APT_DESKTOP_UTILS=(
+  xbindkeys gnome-screenshot x11-xserver-utils x11-apps xdotool desktop-file-utils
+)
+
+# Audio stack and speech synthesis (TTS announcements, sound theme).
+APT_AUDIO_SPEECH=(
+  pulseaudio-utils pipewire-audio speech-dispatcher espeak-ng sound-theme-freedesktop
+)
+
+# Multimedia applications.
+APT_MULTIMEDIA=(easyeffects vlc obs-studio)
+
+# GNOME Keyring and Secret Service libraries (passwordless-keyring migration).
+APT_KEYRING=(gnome-keyring gir1.2-secret-1 dbus-daemon)
+
+# Remmina remote desktop client and RDP/secret plugins.
+APT_REMOTE_DESKTOP=(remmina remmina-plugin-rdp remmina-plugin-secret)
+
+# Terminal multiplexer.
+APT_TMUX=(tmux)
+
+# KVM/libvirt virtualization stack.
+APT_VIRTUALIZATION=(virtinst virt-manager libvirt-daemon-system libvirt-clients bridge-utils)
+
+# Union of every group; kept for backward compatibility and reference.
 APT_BASE_PACKAGES=(
   gnome-shell-extension-manager chrome-gnome-shell make gettext kitty git curl gpg
   gnome-tweaks easyeffects vlc obs-studio pulseaudio-utils pipewire-audio

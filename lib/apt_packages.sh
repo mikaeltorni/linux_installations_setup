@@ -40,3 +40,22 @@ install_base_packages() {
     log "warn" "APT_BASE_PACKAGES is empty, skipping base package install"
   fi
 }
+
+# install_pkg_group — install a labelled group of APT packages.
+#
+# Parameters:
+#   $1 (label):       Human-readable description for the progress message.
+#   $@ (packages...): Package names to install.
+#
+# Used by the per-feature components so each selectable group installs through
+# the shared apt_install path (single apt-update, idempotent).
+install_pkg_group() {
+  local label="$1"
+  shift
+  msg "Installing ${label}"
+  if [ "$#" -gt 0 ]; then
+    apt_install "$@"
+  else
+    log "warn" "No packages for ${label}, skipping"
+  fi
+}
