@@ -36,10 +36,20 @@ install_google_chrome() {
   fi
   msg "Installing Google Chrome (stable)"
   install -m 0755 -d /etc/apt/keyrings
-  curl -fsSL https://dl.google.com/linux/linux_signing_key.pub | gpg --dearmor -o /etc/apt/keyrings/google-chrome.gpg
+  if ! curl -fsSL https://dl.google.com/linux/linux_signing_key.pub | gpg --dearmor -o /etc/apt/keyrings/google-chrome.gpg; then
+    log "error" "Failed to download Google signing key; skipping Chrome installation."
+    return 0
+  fi
   echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/google-chrome.gpg] https://dl.google.com/linux/chrome/deb/ stable main" > /etc/apt/sources.list.d/google-chrome.list
-  apt update -y
-  apt install -y google-chrome-stable
+  if ! apt update -y; then
+    log "error" "apt update failed while adding Google Chrome repository."
+    return 0
+  fi
+  if ! apt install -y google-chrome-stable; then
+    log "error" "Failed to install google-chrome-stable package."
+    rm -f /etc/apt/sources.list.d/google-chrome.list
+    return 0
+  fi
 }
 
 install_balena_etcher() {
@@ -59,18 +69,24 @@ install_balena_etcher() {
   rm -rf "$tmpdir"
   mkdir -p "$tmpdir"
   local url
-  url="$(curl -fsSL "$release_api" |
-    jq -r '.assets[]? | select(.name | test("_amd64[.]deb$")) | .browser_download_url' |
-    head -n 1)"
+  url="$(curl -fsSL "$release_api" | jq -r '.assets[]? | select(.name | test("_amd64[.]deb$")) | .browser_download_url' | head -n 1)" || { log "error" "Failed to query Etcher release API"; rm -rf "$tmpdir"; return 0; }
   if [ -z "$url" ]; then
     log "error" "No amd64 Debian package found for Balena Etcher ${ETCHER_VERSION}."
     rm -rf "$tmpdir"
-    return 1
+    return 0
   fi
-  curl -fL "$url" -o "$tmpdir/balena-etcher.deb"
-  apt install -y "$tmpdir/balena-etcher.deb"
+  if ! curl -fL "$url" -o "$tmpdir/balena-etcher.deb"; then
+    log "error" "Failed to download Etcher package from $url"
+    rm -rf "$tmpdir"
+    return 0
+  fi
+  if ! apt install -y "$tmpdir/balena-etcher.deb"; then
+    log "error" "Failed to install balena-etcher .deb package."
+    rm -rf "$tmpdir"
+    return 0
+  fi
   rm -rf "$tmpdir"
-  msg "Balena Etcher installed"
+  msg "Balena Etcher installed successfully"
 }
 
 install_gh_cli() {
