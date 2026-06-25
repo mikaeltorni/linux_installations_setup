@@ -76,8 +76,8 @@ run_tests() {
       local union=(
         "${APT_CORE_UTILS[@]}" "${APT_GNOME_TOOLING[@]}" "${APT_BUILD_TOOLS[@]}"
         "${APT_TERMINAL[@]}" "${APT_PYTHON[@]}" "${APT_DESKTOP_UTILS[@]}"
-        "${APT_AUDIO_SPEECH[@]}" "${APT_MULTIMEDIA[@]}" "${APT_KEYRING[@]}"
-        "${APT_REMOTE_DESKTOP[@]}" "${APT_TMUX[@]}" "${APT_VIRTUALIZATION[@]}"
+        "${APT_AUDIO_SPEECH[@]}" "${APT_MULTIMEDIA[@]}" "${APT_REMOTE_DESKTOP[@]}"
+        "${APT_TMUX[@]}" "${APT_VIRTUALIZATION[@]}"
       )
       local a b
       a="$(printf '%s\n' "${union[@]}" | sort)"
@@ -98,10 +98,22 @@ run_tests() {
     )
   }
 
+  keyring_hidden_dependency() {
+    ( load_env
+      local ids
+      ids="$(printf '%s\n' "${ISC_COMPONENTS[@]}" | cut -d'|' -f1)"
+      ! grep -qx keyring <<< "$ids" || exit 1
+      printf '%s\n' "${APT_PYTHON[@]}" | grep -qx gnome-keyring
+      printf '%s\n' "${APT_PYTHON[@]}" | grep -qx gir1.2-secret-1
+      printf '%s\n' "${APT_PYTHON[@]}" | grep -qx dbus-daemon
+    )
+  }
+
   check "every component is default-on" every_component_default_on
   check "every component maps to a defined function" every_component_function_defined
   check "package groups reproduce APT_BASE_PACKAGES" groups_cover_base_packages
   check "all expected feature components are present" feature_components_present
+  check "keyring libraries are hidden in python runtime dependencies" keyring_hidden_dependency
 
   echo
   echo "Components tests: $passed passed, $failed failed, $total total"

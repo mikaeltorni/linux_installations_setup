@@ -4,7 +4,7 @@
 # detect_* report live install state for --detect (read-only; safe without root).
 # Uninstall is provided only for the discrete application components (Chrome,
 # Etcher, the snaps, GitHub CLI, Albert). The base package GROUPS (core_utils,
-# build_tools, python_runtime, keyring, ...) intentionally ship NO uninstall
+# build_tools, python_runtime, ...) intentionally ship NO uninstall
 # function: apt-removing shared system toolchains is dangerous and could break
 # the desktop, so their [u] action only clears the install record (the shared
 # runtime's safe fallback). Detection still reports them accurately.
@@ -31,7 +31,6 @@ detect_python_runtime() { lis_pkgs_installed "${APT_PYTHON[@]}"; }
 detect_desktop_utils()  { lis_pkgs_installed "${APT_DESKTOP_UTILS[@]}"; }
 detect_audio_speech()   { lis_pkgs_installed "${APT_AUDIO_SPEECH[@]}"; }
 detect_multimedia()     { lis_pkgs_installed "${APT_MULTIMEDIA[@]}"; }
-detect_keyring()        { lis_pkgs_installed "${APT_KEYRING[@]}"; }
 detect_remote_desktop() { lis_pkgs_installed "${APT_REMOTE_DESKTOP[@]}"; }
 detect_tmux()           { lis_pkgs_installed "${APT_TMUX[@]}"; }
 detect_virtualization() { lis_pkgs_installed "${APT_VIRTUALIZATION[@]}"; }

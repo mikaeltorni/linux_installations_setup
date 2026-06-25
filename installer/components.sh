@@ -29,7 +29,6 @@ ISC_COMPONENTS=(
   "desktop_utils|X11 & desktop utilities (xdotool, screenshot)|on|lis_install_desktop_utils|detect_desktop_utils"
   "audio_speech|Audio stack & speech synthesis|on|lis_install_audio_speech|detect_audio_speech"
   "multimedia|Multimedia apps (VLC, OBS, EasyEffects)|on|lis_install_multimedia|detect_multimedia"
-  "keyring|GNOME Keyring & Secret Service libraries|on|lis_install_keyring|detect_keyring"
   "remote_desktop|Remmina remote desktop client|on|lis_install_remote_desktop|detect_remote_desktop"
   "tmux|tmux terminal multiplexer|on|lis_install_tmux|detect_tmux"
   "virtualization|KVM/libvirt virtualization stack|on|lis_install_virtualization|detect_virtualization"
@@ -63,7 +62,6 @@ lis_install_python_runtime()  { install_pkg_group "Python runtime & libraries"  
 lis_install_desktop_utils()   { install_pkg_group "X11 & desktop utilities"       "${APT_DESKTOP_UTILS[@]}"; }
 lis_install_audio_speech()    { install_pkg_group "audio & speech"                "${APT_AUDIO_SPEECH[@]}"; }
 lis_install_multimedia()      { install_pkg_group "multimedia apps"               "${APT_MULTIMEDIA[@]}"; }
-lis_install_keyring()         { install_pkg_group "GNOME Keyring & Secret Service" "${APT_KEYRING[@]}"; }
 lis_install_remote_desktop()  { install_pkg_group "Remmina remote desktop"        "${APT_REMOTE_DESKTOP[@]}"; }
 lis_install_tmux()            { install_pkg_group "tmux"                          "${APT_TMUX[@]}"; }
 lis_install_virtualization()  { install_pkg_group "KVM/libvirt virtualization"    "${APT_VIRTUALIZATION[@]}"; }
@@ -82,4 +80,23 @@ lis_install_nvidia() {
   else
     msg "No NVIDIA GPU detected — skipping driver installation"
   fi
+}
+
+# lis_list_favorite_components - Print app components that can be pinned to the
+# GNOME dock from the master program-installation menu.
+#
+# Output format is id<TAB>comma-separated .desktop ids. The master installer
+# consumes this optional side-channel and passes the selected desktop ids to
+# linux_configuration_setup's favorites component as SELECTED_FAVORITE_APPS.
+lis_list_favorite_components() {
+  printf 'terminal\tkitty.desktop\n'
+  printf 'multimedia\tcom.obsproject.Studio.desktop,com.github.wwmm.easyeffects.desktop,vlc.desktop\n'
+  printf 'remote_desktop\torg.remmina.Remmina.desktop,remmina.desktop\n'
+  printf 'chrome\tgoogle-chrome.desktop,com.google.Chrome.desktop\n'
+  printf 'snap_gitkraken\tgitkraken.desktop,gitkraken_gitkraken.desktop\n'
+  printf 'snap_spotify\tspotify.desktop,spotify_spotify.desktop\n'
+  printf 'snap_discord\tdiscord.desktop,discord_discord.desktop\n'
+  printf 'albert\talbert.desktop\n'
+  printf 'nvidia\tnvidia-settings.desktop\n'
+  printf 'virtualization\tvirt-manager.desktop\n'
 }

@@ -131,10 +131,17 @@ bash install.sh --default       # install all default-on components, no prompts
 bash install.sh --all           # install every component, no prompts
 bash install.sh --select a,b    # install exactly these component ids
 bash install.sh --list-components  # print: id<TAB>label<TAB>default
+bash install.sh --list-favorite-components
+                                # print app components that can be dock favourites
 ```
 
 In the interactive menu, **space** toggles a component, `a`/`n` select all
 or none, and **Enter** installs the selection. Components:
+
+When run through the master installer, app components that can become GNOME dock
+favourites expose their `.desktop` ids through `--list-favorite-components`. The
+master menu lets you toggle those with **f** and forwards the selected list to
+`linux_configuration_setup`.
 
 Every feature is its own independently selectable component, all default-on,
 so a clean install reproduces the full setup while you can deselect anything.
@@ -145,11 +152,10 @@ so a clean install reproduces the full setup while you can deselect anything.
 | `gnome_tooling` | GNOME Shell extension & tweak tooling | on |
 | `build_tools` | Build toolchain & development headers | on |
 | `terminal` | Kitty terminal emulator | on |
-| `python_runtime` | Python runtime & libraries | on |
+| `python_runtime` | Python runtime & configuration libraries (includes Secret Service support) | on |
 | `desktop_utils` | X11 & desktop utilities (xdotool, screenshot) | on |
 | `audio_speech` | Audio stack & speech synthesis | on |
 | `multimedia` | Multimedia apps (VLC, OBS, EasyEffects) | on |
-| `keyring` | GNOME Keyring & Secret Service libraries | on |
 | `remote_desktop` | Remmina remote desktop client | on |
 | `tmux` | tmux terminal multiplexer | on |
 | `virtualization` | KVM/libvirt virtualization stack | on |

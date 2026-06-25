@@ -67,9 +67,15 @@ APT_BUILD_TOOLS=(make gettext build-essential pkg-config libx11-dev libxi-dev li
 # Kitty terminal emulator.
 APT_TERMINAL=(kitty)
 
-# Python runtime and libraries (evdev for hotkeys, Pillow for cursor assets,
-# PyGObject for the keyring migration).
-APT_PYTHON=(python3 python3-evdev python3-pil python3-gi)
+# Python runtime and configuration libraries (evdev for hotkeys, Pillow for
+# cursor assets, PyGObject plus Secret Service libraries for the keyring
+# migration). The keyring libraries are intentionally part of this default group
+# instead of a separate menu row: Ubuntu usually preinstalls them, but a clean
+# minimal system still needs them for linux_configuration_setup.
+APT_PYTHON=(
+  python3 python3-evdev python3-pil python3-gi
+  gnome-keyring gir1.2-secret-1 dbus-daemon
+)
 
 # X11 and desktop utilities (screenshotting, the documented Alt+F2 shell reload,
 # desktop entry handling, key binding daemon).
@@ -85,9 +91,6 @@ APT_AUDIO_SPEECH=(
 # Multimedia applications.
 APT_MULTIMEDIA=(easyeffects vlc obs-studio)
 
-# GNOME Keyring and Secret Service libraries (passwordless-keyring migration).
-APT_KEYRING=(gnome-keyring gir1.2-secret-1 dbus-daemon)
-
 # Remmina remote desktop client and RDP/secret plugins.
 APT_REMOTE_DESKTOP=(remmina remmina-plugin-rdp remmina-plugin-secret)
 
@@ -101,8 +104,8 @@ APT_VIRTUALIZATION=(virtinst virt-manager libvirt-daemon-system libvirt-clients 
 APT_BASE_PACKAGES=(
   "${APT_CORE_UTILS[@]}" "${APT_GNOME_TOOLING[@]}" "${APT_BUILD_TOOLS[@]}"
   "${APT_TERMINAL[@]}" "${APT_PYTHON[@]}" "${APT_DESKTOP_UTILS[@]}"
-  "${APT_AUDIO_SPEECH[@]}" "${APT_MULTIMEDIA[@]}" "${APT_KEYRING[@]}"
-  "${APT_REMOTE_DESKTOP[@]}" "${APT_TMUX[@]}" "${APT_VIRTUALIZATION[@]}"
+  "${APT_AUDIO_SPEECH[@]}" "${APT_MULTIMEDIA[@]}" "${APT_REMOTE_DESKTOP[@]}"
+  "${APT_TMUX[@]}" "${APT_VIRTUALIZATION[@]}"
 )
 
 # Snap applications, split so each is independently selectable via components.
@@ -153,6 +156,7 @@ if [[ "${BASH_SOURCE[0]}" == "${0}" ]]; then
     # Listing/help must print only their own output (the master installer parses
     # --list-components) and must not require root or trigger a reboot.
     case "${1:-}" in
+      --list-favorite-components) lis_list_favorite_components; exit $? ;;
       --list-components|--detect|--help|-h|--uninstall|--uninstall=*) component_main "$@"; exit $? ;;
     esac
     run_and_log_with_reboot "$@"
