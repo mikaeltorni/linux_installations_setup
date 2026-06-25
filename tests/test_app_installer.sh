@@ -2,7 +2,7 @@
 # test_app_installer.sh — Tests for lib/app_installer.sh
 #
 # Guards that the application installers expose the expected functions and that
-# the GitHub CLI APT source is written to a file with a ``.list`` extension.
+# the GitHub CLI APT source is written with a readable full keyring.
 # APT only reads files in /etc/apt/sources.list.d/ that end in ``.list`` (or
 # ``.sources``); a name without that extension is silently ignored, so the
 # regression below pins the correct filename.
@@ -14,6 +14,7 @@ set -euo pipefail
 TEST_SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_DIR="$(dirname "$TEST_SCRIPT_DIR")"
 APP_INSTALLER="$PROJECT_DIR/lib/app_installer.sh"
+LIFECYCLE="$PROJECT_DIR/lib/lifecycle.sh"
 
 run_tests() {
   local passed=0 failed=0 total=0
@@ -37,6 +38,10 @@ run_tests() {
   check "install_gh_cli defined" grep -q '^install_gh_cli()' "$APP_INSTALLER"
   check "gh source file ends in .list" grep -q 'sources.list.d/github-cli\.list' "$APP_INSTALLER"
   check "no extensionless gh source file" bash -c "! grep -q 'github-cli-list' '$APP_INSTALLER'"
+  check "gh keyring is not truncated" bash -c "! grep -q 'bs=128 count=1' '$APP_INSTALLER'"
+  check "gh keyring is installed atomically" grep -q 'mv "$tmp_keyring" "$keyring"' "$APP_INSTALLER"
+  check "gh apt update failure is logged" grep -q 'apt update failed after adding GitHub CLI repo' "$APP_INSTALLER"
+  check "gh detection validates apt source keyring" grep -q 'detect_gh_cli().*gh_cli_apt_source_has_readable_keyring' "$LIFECYCLE"
 
   echo ""
   echo "Results: $passed passed, $failed failed ($total total)"

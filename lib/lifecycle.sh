@@ -41,7 +41,7 @@ detect_etcher()        { need_cmd balena-etcher; }
 detect_snap_gitkraken(){ lis_snap_installed "${SNAP_GITKRAKEN[@]}"; }
 detect_snap_spotify()  { lis_snap_installed "${SNAP_SPOTIFY[@]}"; }
 detect_snap_discord()  { lis_snap_installed "${SNAP_DISCORD[@]}"; }
-detect_gh_cli()        { need_cmd gh; }
+detect_gh_cli()        { need_cmd gh && gh_cli_apt_source_has_readable_keyring; }
 detect_github_login()  { need_cmd gh && gh auth status >/dev/null 2>&1; }
 detect_albert()        { need_cmd albert; }
 detect_nvidia()        { need_cmd nvidia-smi; }
