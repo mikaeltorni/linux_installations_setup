@@ -7,3 +7,4 @@
 
 source "$SCRIPT_DIR/lib/apt_packages.sh"
 source "$SCRIPT_DIR/lib/app_installer.sh"
+source "$SCRIPT_DIR/lib/lifecycle.sh"
