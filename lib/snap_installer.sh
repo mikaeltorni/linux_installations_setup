@@ -19,7 +19,7 @@ install_snaps() {
 # components so GitKraken, Spotify, and Discord are independently selectable.
 install_snap_apps() {
   if [ "$#" -eq 0 ]; then
-    log "warn" "No snap apps requested, skipping snap installation"
+    log "warn" "SNAP_APPS is empty; no snap apps requested, skipping snap installation"
     return 0
   fi
   msg "Installing snap applications"
