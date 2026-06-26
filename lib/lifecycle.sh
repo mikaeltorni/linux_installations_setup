@@ -44,7 +44,27 @@ detect_snap_discord()  { lis_snap_installed "${SNAP_DISCORD[@]}"; }
 detect_gh_cli()        { need_cmd gh && gh_cli_apt_source_has_readable_keyring; }
 detect_github_login()  { need_cmd gh && gh auth status >/dev/null 2>&1; }
 detect_albert()        { need_cmd albert; }
-detect_nvidia()        { need_cmd nvidia-smi; }
+detect_nvidia() {
+  # Check if any NVIDIA GPU hardware exists on this system. If no NVIDIA
+  # hardware is present, report the component as unavailable (red X) rather than
+  # missing or failed — the feature simply cannot run on this machine.
+  local has_gpu=0
+  
+  # Check for NVIDIA in lspci output (if lspci is available)  
+  if command -v lspci >/dev/null 2>&1; then
+    lspci -nn 2>/dev/null | grep -qi "NVIDIA" && has_gpu=1
+  fi
+  
+  # Also check nvidia-smi directly as fallback
+  command -v nvidia-smi >/dev/null 2>&1 && has_gpu=1
+  
+  if [ "$has_gpu" -eq 0 ]; then
+    return 1  # No GPU = unavailable (UI should show red X)
+  fi
+  
+  # GPU present; check if NVIDIA driver is installed
+  need_cmd nvidia-smi
+}
 
 # --- Uninstall: applications only (root-guarded) -----------------------------
 lis_require_root() {
