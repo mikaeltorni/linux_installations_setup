@@ -96,7 +96,6 @@ lis_list_favorite_components() {
   printf 'snap_gitkraken\tgitkraken.desktop,gitkraken_gitkraken.desktop\n'
   printf 'snap_spotify\tspotify.desktop,spotify_spotify.desktop\n'
   printf 'snap_discord\tdiscord.desktop,discord_discord.desktop\n'
-  printf 'albert\talbert.desktop\n'
   printf 'nvidia\tnvidia-settings.desktop\n'
   printf 'virtualization\tvirt-manager.desktop\n'
 }
