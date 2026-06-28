@@ -90,7 +90,7 @@ lis_install_nvidia() {
 # linux_configuration_setup's favorites component as SELECTED_FAVORITE_APPS.
 lis_list_favorite_components() {
   printf 'terminal\tkitty.desktop\n'
-  printf 'multimedia\tcom.obsproject.Studio.desktop,com.github.wwmm.easyeffects.desktop,vlc.desktop\n'
+  printf 'multimedia\tcom.obsproject.Studio.desktop,com.github.wwmm.easyeffects.desktop\n'
   printf 'remote_desktop\torg.remmina.Remmina.desktop,remmina.desktop\n'
   printf 'chrome\tgoogle-chrome.desktop,com.google.Chrome.desktop\n'
   printf 'snap_gitkraken\tgitkraken.desktop,gitkraken_gitkraken.desktop\n'
