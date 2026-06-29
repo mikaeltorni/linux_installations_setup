@@ -42,6 +42,7 @@ isc_load_helpers
 source "$SCRIPT_DIR/lib/hardware.sh"
 source "$SCRIPT_DIR/lib/apt_helpers.sh"
 source "$SCRIPT_DIR/lib/system_services.sh"
+source "$SCRIPT_DIR/lib/nodejs_installer.sh"
 
 APT_UPDATED=0
 
@@ -199,6 +200,7 @@ if [[ "${BASH_SOURCE[0]}" == "${0}" ]]; then
     # --list-components) and must not require root or trigger a reboot.
     case "${1:-}" in
       --list-favorite-components) lis_list_favorite_components; exit $? ;;
+      --list-startup-components) lis_list_startup_components; exit $? ;;
       --list-components|--detect|--help|-h|--uninstall|--uninstall=*) component_main "$@"; exit $? ;;
     esac
     run_and_log_with_reboot "$@"

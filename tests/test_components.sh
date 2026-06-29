@@ -50,6 +50,7 @@ run_tests() {
     source lib/hardware.sh
     source lib/apt_helpers.sh
     source lib/system_services.sh
+    source lib/nodejs_installer.sh
     source installer/components.sh
   }
 
@@ -109,11 +110,37 @@ run_tests() {
     )
   }
 
+  nodejs_22_component_contract() {
+    ( load_env
+      printf '%s\n' "${ISC_COMPONENTS[@]}" |
+        grep -q '^nodejs|Node.js 22 runtime (includes npm)|on|install_nodejs_22|detect_nodejs_22$' || exit 1
+      declare -F install_nodejs_22 >/dev/null || exit 1
+      declare -F detect_nodejs_22 >/dev/null || exit 1
+    )
+  }
+
+  startup_metadata_covers_installed_desktop_apps() {
+    ( load_env
+      local output ids
+      output="$(lis_list_startup_components)"
+      ids="$(cut -f1 <<<"$output")"
+      for want in terminal multimedia remote_desktop chrome etcher \
+                  snap_gitkraken snap_spotify snap_discord albert nvidia \
+                  virtualization; do
+        grep -qx "$want" <<<"$ids" || exit 1
+      done
+      grep -qx $'snap_spotify\tspotify.desktop|spotify_spotify.desktop\ton' <<<"$output"
+      grep -qx $'chrome\tgoogle-chrome.desktop|com.google.Chrome.desktop\toff' <<<"$output"
+    )
+  }
+
   check "every component is default-on" every_component_default_on
   check "every component maps to a defined function" every_component_function_defined
   check "package groups reproduce APT_BASE_PACKAGES" groups_cover_base_packages
   check "all expected feature components are present" feature_components_present
   check "keyring libraries are hidden in python runtime dependencies" keyring_hidden_dependency
+  check "Node.js 22 is a default-on component" nodejs_22_component_contract
+  check "startup metadata covers installed desktop apps" startup_metadata_covers_installed_desktop_apps
 
   echo
   echo "Components tests: $passed passed, $failed failed, $total total"

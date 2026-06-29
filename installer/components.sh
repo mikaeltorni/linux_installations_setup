@@ -24,6 +24,7 @@ ISC_COMPONENTS=(
   "core_utils|Core CLI utilities (git, curl, gpg, jq, 7zip)|on|lis_install_core_utils|detect_core_utils"
   "gnome_tooling|GNOME Shell extension & tweak tooling|on|lis_install_gnome_tooling|detect_gnome_tooling"
   "build_tools|Build toolchain & development headers|on|lis_install_build_tools|detect_build_tools"
+  "nodejs|Node.js 22 runtime (includes npm)|on|install_nodejs_22|detect_nodejs_22"
   "terminal|Kitty terminal emulator|on|lis_install_terminal|detect_terminal"
   "python_runtime|Python runtime & libraries|on|lis_install_python_runtime|detect_python_runtime"
   "desktop_utils|X11 & desktop utilities (xdotool, screenshot)|on|lis_install_desktop_utils|detect_desktop_utils"
@@ -98,4 +99,24 @@ lis_list_favorite_components() {
   printf 'snap_discord\tdiscord.desktop,discord_discord.desktop\n'
   printf 'nvidia\tnvidia-settings.desktop\n'
   printf 'virtualization\tvirt-manager.desktop\n'
+}
+
+# lis_list_startup_components - Print app components that the master installer
+# can configure to launch at desktop login with its [s] menu action.
+#
+# Output is id<TAB>desktop candidates<TAB>default. Pipe-separated filenames are
+# alternatives for the same application. Defaults preserve the setup chain's
+# existing Spotify, GitKraken, EasyEffects, and Albert startup behavior.
+lis_list_startup_components() {
+  printf 'terminal\tkitty.desktop\toff\n'
+  printf 'multimedia\tcom.github.wwmm.easyeffects.desktop|org.gnome.EasyEffects.desktop\ton\n'
+  printf 'remote_desktop\torg.remmina.Remmina.desktop|remmina.desktop\toff\n'
+  printf 'chrome\tgoogle-chrome.desktop|com.google.Chrome.desktop\toff\n'
+  printf 'etcher\tbalena-etcher.desktop|balenaEtcher.desktop\toff\n'
+  printf 'snap_gitkraken\tgitkraken.desktop|gitkraken_gitkraken.desktop\ton\n'
+  printf 'snap_spotify\tspotify.desktop|spotify_spotify.desktop\ton\n'
+  printf 'snap_discord\tdiscord.desktop|discord_discord.desktop\toff\n'
+  printf 'albert\talbert.desktop\ton\n'
+  printf 'nvidia\tnvidia-settings.desktop\toff\n'
+  printf 'virtualization\tvirt-manager.desktop\toff\n'
 }
