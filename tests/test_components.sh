@@ -133,7 +133,7 @@ run_tests() {
   nodejs_22_component_contract() {
     ( load_env
       printf '%s\n' "${ISC_COMPONENTS[@]}" |
-        grep -q '^nodejs|Node.js 22 runtime (includes npm)|on|install_nodejs_22|detect_nodejs_22$' || exit 1
+        grep -q '^nodejs|Node.js 22 runtime (includes npm)|on|install_nodejs_22|detect_nodejs_22||Core CLI utilities$' || exit 1
       declare -F install_nodejs_22 >/dev/null || exit 1
       declare -F detect_nodejs_22 >/dev/null || exit 1
     )
@@ -157,6 +157,33 @@ run_tests() {
     )
   }
 
+  desktop_application_components_are_startup_capable() {
+    ( load_env
+      local startup_ids id label default fn detect uninstall section
+      startup_ids="$(lis_list_startup_components | cut -f1)"
+      for entry in "${ISC_COMPONENTS[@]}"; do
+        IFS='|' read -r id label default fn detect uninstall section _ <<<"$entry"
+        [ "$section" = "Desktop applications" ] || continue
+        grep -qx "$id" <<<"$startup_ids" || exit 1
+      done
+    )
+  }
+
+  component_sections_are_contiguous() {
+    ( load_env
+      local entry section previous="" closed="" _id _label _default _fn _detect _uninstall
+      for entry in "${ISC_COMPONENTS[@]}"; do
+        IFS='|' read -r _id _label _default _fn _detect _uninstall section _ <<<"$entry"
+        [ -n "$section" ] || exit 1
+        if [ "$section" != "$previous" ]; then
+          grep -Fxq "$section" <<<"$closed" && exit 1
+          [ -n "$previous" ] && closed="${closed}${closed:+$'\n'}${previous}"
+          previous="$section"
+        fi
+      done
+    )
+  }
+
   application_installers_do_not_bypass_startup_selection() {
     # The master [S] selector and linux_configuration_setup are the only
     # authority allowed to create per-application login launchers. Package
@@ -173,6 +200,8 @@ run_tests() {
   check "keyring libraries are hidden in python runtime dependencies" keyring_hidden_dependency
   check "Node.js 22 is a default-on component" nodejs_22_component_contract
   check "startup metadata covers installed desktop apps" startup_metadata_covers_installed_desktop_apps
+  check "every desktop application component supports [S]" desktop_application_components_are_startup_capable
+  check "component menu sections are contiguous" component_sections_are_contiguous
   check "application installers do not bypass [S] startup selection" application_installers_do_not_bypass_startup_selection
 
   echo

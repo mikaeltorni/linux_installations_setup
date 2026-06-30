@@ -158,6 +158,9 @@ selection.
 
 Every feature is its own independently selectable component, all default-on,
 so a clean install reproduces the full setup while you can deselect anything.
+The submenu groups rows into **Core CLI utilities**, **System dependencies**,
+**Desktop applications**, and **Drivers & hardware**. Every row in Desktop
+applications supports the master menu's `[S]` startup action.
 
 | Component id | Description | Default |
 |---|---|---|
