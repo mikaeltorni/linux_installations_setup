@@ -19,9 +19,13 @@ ISC_REPO_LABEL="Base packages, drivers and applications"
 ISC_PREFLIGHT="lis_preflight"
 
 ISC_COMPONENTS=(
-  # Base package groups — every feature is independently selectable, all on by
-  # default so a clean install reproduces the full set.
-  "core_utils|Core CLI utilities (git, curl, gpg, jq, 7zip)|on|lis_install_core_utils|detect_core_utils"
+  # Base packages and applications — every user-visible feature is independently
+  # selectable, all on by default so a clean install reproduces the full set.
+  "git|Git version-control CLI|on|lis_install_git|detect_git"
+  "curl|curl data-transfer CLI|on|lis_install_curl|detect_curl"
+  "gpg|GnuPG encryption/signing CLI|on|lis_install_gpg|detect_gpg"
+  "jq|jq JSON-processing CLI|on|lis_install_jq|detect_jq"
+  "p7zip|7-Zip archive CLI|on|lis_install_p7zip|detect_p7zip"
   "gnome_tooling|GNOME Shell extension & tweak tooling|on|lis_install_gnome_tooling|detect_gnome_tooling"
   "build_tools|Build toolchain & development headers|on|lis_install_build_tools|detect_build_tools"
   "nodejs|Node.js 22 runtime (includes npm)|on|install_nodejs_22|detect_nodejs_22"
@@ -29,7 +33,9 @@ ISC_COMPONENTS=(
   "python_runtime|Python runtime & libraries|on|lis_install_python_runtime|detect_python_runtime"
   "desktop_utils|X11 & desktop utilities (xdotool, screenshot)|on|lis_install_desktop_utils|detect_desktop_utils"
   "audio_speech|Audio stack & speech synthesis|on|lis_install_audio_speech|detect_audio_speech"
-  "multimedia|Multimedia apps (VLC, OBS, EasyEffects)|on|lis_install_multimedia|detect_multimedia"
+  "vlc|VLC media player|on|lis_install_vlc|detect_vlc|uninstall_vlc"
+  "obs|OBS Studio|on|lis_install_obs|detect_obs|uninstall_obs"
+  "easyeffects|EasyEffects audio effects|on|lis_install_easyeffects|detect_easyeffects|uninstall_easyeffects"
   "remote_desktop|Remmina remote desktop client|on|lis_install_remote_desktop|detect_remote_desktop"
   "tmux|tmux terminal multiplexer|on|lis_install_tmux|detect_tmux"
   "virtualization|KVM/libvirt virtualization stack|on|lis_install_virtualization|detect_virtualization"
@@ -55,14 +61,20 @@ lis_preflight() {
 # Per-feature package-group installers. Each wraps install_pkg_group with the
 # corresponding APT_* array declared in install.sh so the shared single
 # apt-update/idempotent path is reused.
-lis_install_core_utils()      { install_pkg_group "core CLI utilities"            "${APT_CORE_UTILS[@]}"; }
+lis_install_git()             { install_pkg_group "git"                           "${APT_GIT[@]}"; }
+lis_install_curl()            { install_pkg_group "curl"                          "${APT_CURL[@]}"; }
+lis_install_gpg()             { install_pkg_group "GnuPG"                         "${APT_GPG[@]}"; }
+lis_install_jq()              { install_pkg_group "jq"                            "${APT_JQ[@]}"; }
+lis_install_p7zip()          { install_pkg_group "7-Zip"                         "${APT_7ZIP[@]}"; }
 lis_install_gnome_tooling()   { install_pkg_group "GNOME Shell tooling"           "${APT_GNOME_TOOLING[@]}"; }
 lis_install_build_tools()     { install_pkg_group "build toolchain"               "${APT_BUILD_TOOLS[@]}"; }
 lis_install_terminal()        { install_pkg_group "Kitty terminal"                "${APT_TERMINAL[@]}"; }
 lis_install_python_runtime()  { install_pkg_group "Python runtime & libraries"    "${APT_PYTHON[@]}"; }
 lis_install_desktop_utils()   { install_pkg_group "X11 & desktop utilities"       "${APT_DESKTOP_UTILS[@]}"; }
 lis_install_audio_speech()    { install_pkg_group "audio & speech"                "${APT_AUDIO_SPEECH[@]}"; }
-lis_install_multimedia()      { install_pkg_group "multimedia apps"               "${APT_MULTIMEDIA[@]}"; }
+lis_install_vlc()             { install_pkg_group "VLC"                           "${APT_VLC[@]}"; }
+lis_install_obs()             { install_pkg_group "OBS Studio"                    "${APT_OBS[@]}"; }
+lis_install_easyeffects()     { install_pkg_group "EasyEffects"                   "${APT_EASYEFFECTS[@]}"; }
 lis_install_remote_desktop()  { install_pkg_group "Remmina remote desktop"        "${APT_REMOTE_DESKTOP[@]}"; }
 lis_install_tmux()            { install_pkg_group "tmux"                          "${APT_TMUX[@]}"; }
 lis_install_virtualization()  { install_pkg_group "KVM/libvirt virtualization"    "${APT_VIRTUALIZATION[@]}"; }
@@ -91,7 +103,8 @@ lis_install_nvidia() {
 # linux_configuration_setup's favorites component as SELECTED_FAVORITE_APPS.
 lis_list_favorite_components() {
   printf 'terminal\tkitty.desktop\n'
-  printf 'multimedia\tcom.obsproject.Studio.desktop,com.github.wwmm.easyeffects.desktop\n'
+  printf 'obs\tcom.obsproject.Studio.desktop\n'
+  printf 'easyeffects\tcom.github.wwmm.easyeffects.desktop\n'
   printf 'remote_desktop\torg.remmina.Remmina.desktop,remmina.desktop\n'
   printf 'chrome\tgoogle-chrome.desktop,com.google.Chrome.desktop\n'
   printf 'snap_gitkraken\tgitkraken.desktop,gitkraken_gitkraken.desktop\n'
@@ -109,7 +122,9 @@ lis_list_favorite_components() {
 # existing Spotify, GitKraken, EasyEffects, and Albert startup behavior.
 lis_list_startup_components() {
   printf 'terminal\tkitty.desktop\toff\n'
-  printf 'multimedia\tcom.github.wwmm.easyeffects.desktop|org.gnome.EasyEffects.desktop\ton\n'
+  printf 'vlc\tvlc.desktop\toff\n'
+  printf 'obs\tcom.obsproject.Studio.desktop\toff\n'
+  printf 'easyeffects\tcom.github.wwmm.easyeffects.desktop|org.gnome.EasyEffects.desktop\ton\n'
   printf 'remote_desktop\torg.remmina.Remmina.desktop|remmina.desktop\toff\n'
   printf 'chrome\tgoogle-chrome.desktop|com.google.Chrome.desktop\toff\n'
   printf 'etcher\tbalena-etcher.desktop|balenaEtcher.desktop\toff\n'

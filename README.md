@@ -145,17 +145,27 @@ favourites expose their `.desktop` ids through `--list-favorite-components`. The
 master menu lets you toggle those with **f** and forwards the selected list to
 `linux_configuration_setup`.
 
-Desktop applications also expose startup launcher candidates through
+VLC, OBS, and EasyEffects now have separate components and expose individual
+startup launcher candidates through
 `--list-startup-components`. In the master menu, **s** toggles launch at desktop
 login; rows selected for favourite and startup display `FS`. Existing default
 startup behavior is preserved for Spotify, GitKraken, EasyEffects, and Albert.
+
+The core command-line tools are also independent components (`git`, `curl`,
+`gpg`, `jq`, and `p7zip`). Compatibility union arrays remain available to the
+legacy aggregate installation helper, but the menu no longer couples their
+selection.
 
 Every feature is its own independently selectable component, all default-on,
 so a clean install reproduces the full setup while you can deselect anything.
 
 | Component id | Description | Default |
 |---|---|---|
-| `core_utils` | Core CLI utilities (git, curl, gpg, jq, 7zip) | on |
+| `git` | Git version-control CLI | on |
+| `curl` | curl data-transfer CLI | on |
+| `gpg` | GnuPG encryption/signing CLI | on |
+| `jq` | jq JSON-processing CLI | on |
+| `p7zip` | 7-Zip archive CLI | on |
 | `gnome_tooling` | GNOME Shell extension & tweak tooling | on |
 | `build_tools` | Build toolchain & development headers | on |
 | `nodejs` | Node.js 22 runtime with npm (NodeSource) | on |
@@ -163,7 +173,9 @@ so a clean install reproduces the full setup while you can deselect anything.
 | `python_runtime` | Python runtime & configuration libraries (includes Secret Service support) | on |
 | `desktop_utils` | X11 & desktop utilities (xdotool, screenshot) | on |
 | `audio_speech` | Audio stack & speech synthesis | on |
-| `multimedia` | Multimedia apps (VLC, OBS, EasyEffects) | on |
+| `vlc` | VLC media player | on |
+| `obs` | OBS Studio | on |
+| `easyeffects` | EasyEffects audio effects | on |
 | `remote_desktop` | Remmina remote desktop client | on |
 | `tmux` | tmux terminal multiplexer | on |
 | `virtualization` | KVM/libvirt virtualization stack | on |

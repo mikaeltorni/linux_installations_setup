@@ -3,7 +3,8 @@
 #
 # Components:
 #   - detect_albert_obs_series(): Map the host Ubuntu release to an OBS series.
-#   - install_albert(): Install Albert and configure target-user autostart.
+#   - install_albert(): Install Albert. Login startup is owned by the master [S]
+#     selection and linux_configuration_setup.
 
 detect_albert_obs_series() {
   if [ -n "${ALBERT_OBS_SERIES:-}" ]; then
@@ -48,11 +49,9 @@ install_albert() {
     fi
   fi
   if ! apt install -y albert; then
-    log "error" "Failed to install albert from OBS (${series}); skipping Albert autostart."
+    log "error" "Failed to install albert from OBS (${series})."
     rm -f /etc/apt/sources.list.d/home:manuelschneid3r.list /etc/apt/trusted.gpg.d/home_manuelschneid3r.gpg
     return 0
   fi
-  run_as_target mkdir -p "$TARGET_HOME/.config/autostart"
-  cp /usr/share/applications/albert.desktop "$TARGET_HOME/.config/autostart/" || true
-  msg "Albert launcher installed and enabled for autostart"
+  msg "Albert launcher installed"
 }

@@ -46,7 +46,7 @@ run_tests() {
     # Extract just the APT_*/SNAP_* array declarations from install.sh. Capture
     # starts at an array assignment and ends at the line carrying its closing
     # ")" — handles both single-line and multi-line array literals.
-    eval "$(awk '/^(APT|SNAP)_[A-Z_]*=\(/{p=1} p{print} /\)/{if(p)p=0}' install.sh)"
+    eval "$(awk '/^(APT|SNAP)_[A-Z0-9_]*=\(/{p=1} p{print} /\)/{if(p)p=0}' install.sh)"
     source lib/hardware.sh
     source lib/apt_helpers.sh
     source lib/system_services.sh
@@ -66,7 +66,8 @@ run_tests() {
   every_component_function_defined() {
     ( load_env
       for entry in "${ISC_COMPONENTS[@]}"; do
-        local fn="${entry##*|}"
+        local _id _label _default fn
+        IFS='|' read -r _id _label _default fn _ <<<"$entry"
         declare -F "$fn" >/dev/null 2>&1 || exit 1
       done
     )
@@ -75,9 +76,11 @@ run_tests() {
   groups_cover_base_packages() {
     ( load_env
       local union=(
-        "${APT_CORE_UTILS[@]}" "${APT_GNOME_TOOLING[@]}" "${APT_BUILD_TOOLS[@]}"
+        "${APT_GIT[@]}" "${APT_CURL[@]}" "${APT_GPG[@]}" "${APT_JQ[@]}"
+        "${APT_7ZIP[@]}" "${APT_GNOME_TOOLING[@]}" "${APT_BUILD_TOOLS[@]}"
         "${APT_TERMINAL[@]}" "${APT_PYTHON[@]}" "${APT_DESKTOP_UTILS[@]}"
-        "${APT_AUDIO_SPEECH[@]}" "${APT_MULTIMEDIA[@]}" "${APT_REMOTE_DESKTOP[@]}"
+        "${APT_AUDIO_SPEECH[@]}" "${APT_VLC[@]}" "${APT_OBS[@]}"
+        "${APT_EASYEFFECTS[@]}" "${APT_REMOTE_DESKTOP[@]}"
         "${APT_TMUX[@]}" "${APT_VIRTUALIZATION[@]}"
       )
       local a b
@@ -91,10 +94,27 @@ run_tests() {
     ( load_env
       local ids
       ids="$(printf '%s\n' "${ISC_COMPONENTS[@]}" | cut -d'|' -f1)"
-      for want in core_utils multimedia virtualization remote_desktop tmux \
+      for want in git curl gpg jq p7zip vlc obs easyeffects \
+                  virtualization remote_desktop tmux \
                   snap_gitkraken snap_spotify snap_discord chrome etcher \
                   gh_cli github_login albert nvidia; do
         grep -qx "$want" <<< "$ids" || exit 1
+      done
+      ! grep -Eq '^(core_utils|multimedia)$' <<<"$ids"
+    )
+  }
+
+  discrete_components_install_one_package_each() {
+    ( load_env
+      local entry id fn expected actual
+      for entry in \
+        'git|git' 'curl|curl' 'gpg|gpg' 'jq|jq' 'p7zip|p7zip-full' \
+        'vlc|vlc' 'obs|obs-studio' 'easyeffects|easyeffects'; do
+        IFS='|' read -r id expected <<<"$entry"
+        fn="$(printf '%s\n' "${ISC_COMPONENTS[@]}" | awk -F'|' -v id="$id" '$1 == id { print $4 }')"
+        apt_install() { printf '%s\n' "$*"; }
+        actual="$($fn)"
+        [ "$actual" = "$expected" ] || exit 1
       done
     )
   }
@@ -124,23 +144,36 @@ run_tests() {
       local output ids
       output="$(lis_list_startup_components)"
       ids="$(cut -f1 <<<"$output")"
-      for want in terminal multimedia remote_desktop chrome etcher \
+      for want in terminal vlc obs easyeffects remote_desktop chrome etcher \
                   snap_gitkraken snap_spotify snap_discord albert nvidia \
                   virtualization; do
         grep -qx "$want" <<<"$ids" || exit 1
       done
+      grep -qx $'vlc\tvlc.desktop\toff' <<<"$output"
+      grep -qx $'obs\tcom.obsproject.Studio.desktop\toff' <<<"$output"
+      grep -qx $'easyeffects\tcom.github.wwmm.easyeffects.desktop|org.gnome.EasyEffects.desktop\ton' <<<"$output"
       grep -qx $'snap_spotify\tspotify.desktop|spotify_spotify.desktop\ton' <<<"$output"
       grep -qx $'chrome\tgoogle-chrome.desktop|com.google.Chrome.desktop\toff' <<<"$output"
     )
+  }
+
+  application_installers_do_not_bypass_startup_selection() {
+    # The master [S] selector and linux_configuration_setup are the only
+    # authority allowed to create per-application login launchers. Package
+    # installers must not write ~/.config/autostart directly.
+    ! grep -R -n -E '\.config/autostart|X-GNOME-Autostart-enabled' \
+      "$PROJECT_DIR/lib" --include='*.sh'
   }
 
   check "every component is default-on" every_component_default_on
   check "every component maps to a defined function" every_component_function_defined
   check "package groups reproduce APT_BASE_PACKAGES" groups_cover_base_packages
   check "all expected feature components are present" feature_components_present
+  check "discrete CLI and multimedia components install one package each" discrete_components_install_one_package_each
   check "keyring libraries are hidden in python runtime dependencies" keyring_hidden_dependency
   check "Node.js 22 is a default-on component" nodejs_22_component_contract
   check "startup metadata covers installed desktop apps" startup_metadata_covers_installed_desktop_apps
+  check "application installers do not bypass [S] startup selection" application_installers_do_not_bypass_startup_selection
 
   echo
   echo "Components tests: $passed passed, $failed failed, $total total"

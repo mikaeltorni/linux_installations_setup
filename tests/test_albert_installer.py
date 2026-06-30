@@ -97,8 +97,8 @@ def test_failed_install_removes_repository_files():
     assert "home_manuelschneid3r.gpg" in proc.stdout
 
 
-def test_successful_install_sets_up_target_user_autostart():
-    """A successful install should create and populate target-user autostart."""
+def test_successful_install_leaves_autostart_to_master_selection():
+    """A successful install must leave login startup to the master [S] selector."""
     proc = run_bash(
         albert_script(
             "\n".join(
@@ -106,7 +106,6 @@ def test_successful_install_sets_up_target_user_autostart():
                     "detect_albert_obs_series() { printf 'xUbuntu_24.04\\n'; }",
                     "test() { return 0; }",
                     "apt() { return 0; }",
-                    "cp() { printf 'cp:%s\\n' \"$*\"; }",
                     "install_albert",
                 ]
             )
@@ -114,5 +113,5 @@ def test_successful_install_sets_up_target_user_autostart():
     )
 
     assert proc.returncode == 0, proc.stderr
-    assert "user:mkdir -p /home/test-user/.config/autostart" in proc.stdout
-    assert "cp:/usr/share/applications/albert.desktop" in proc.stdout
+    assert ".config/autostart" not in proc.stdout
+    assert "albert.desktop" not in proc.stdout

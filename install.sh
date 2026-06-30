@@ -52,9 +52,18 @@ APT_UPDATED=0
 # user deselects a group. The aggregate APT_BASE_PACKAGES is retained as the
 # union of all groups for backward compatibility and documentation/tests.
 
-# Core CLI utilities used throughout the setup family (git, downloads, signing,
-# JSON parsing, archive extraction).
-APT_CORE_UTILS=(git curl gpg jq p7zip-full)
+# Core CLI utilities used throughout the setup family. Each tool has its own
+# array/component so it can be selected independently; APT_CORE_UTILS remains
+# their compatibility union for install_base_packages and external callers.
+APT_GIT=(git)
+APT_CURL=(curl)
+APT_GPG=(gpg)
+APT_JQ=(jq)
+APT_7ZIP=(p7zip-full)
+APT_CORE_UTILS=(
+  "${APT_GIT[@]}" "${APT_CURL[@]}" "${APT_GPG[@]}" "${APT_JQ[@]}"
+  "${APT_7ZIP[@]}"
+)
 
 # GNOME Shell extension and tweak tooling consumed by the configuration repos.
 APT_GNOME_TOOLING=(
@@ -89,8 +98,12 @@ APT_AUDIO_SPEECH=(
   pulseaudio-utils pipewire-audio speech-dispatcher espeak-ng sound-theme-freedesktop
 )
 
-# Multimedia applications.
-APT_MULTIMEDIA=(easyeffects vlc obs-studio)
+# Multimedia applications. Keep each app independently selectable while
+# retaining APT_MULTIMEDIA as the compatibility union.
+APT_VLC=(vlc)
+APT_OBS=(obs-studio)
+APT_EASYEFFECTS=(easyeffects)
+APT_MULTIMEDIA=("${APT_VLC[@]}" "${APT_OBS[@]}" "${APT_EASYEFFECTS[@]}")
 
 # Remmina remote desktop client and RDP/secret plugins.
 APT_REMOTE_DESKTOP=(remmina remmina-plugin-rdp remmina-plugin-secret)

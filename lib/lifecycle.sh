@@ -3,8 +3,8 @@
 #
 # detect_* report live install state for --detect (read-only; safe without root).
 # Uninstall is provided only for the discrete application components (Chrome,
-# Etcher, the snaps, GitHub CLI, Albert). The base package GROUPS (core_utils,
-# build_tools, python_runtime, ...) intentionally ship NO uninstall
+# Etcher, multimedia apps, the snaps, GitHub CLI, Albert). Shared base package
+# groups and core CLIs intentionally ship NO uninstall
 # function: apt-removing shared system toolchains is dangerous and could break
 # the desktop, so their [u] action only clears the install record (the shared
 # runtime's safe fallback). Detection still reports them accurately.
@@ -23,14 +23,20 @@ lis_snap_installed() {
 }
 
 # --- Detection: base package groups -----------------------------------------
-detect_core_utils()     { lis_pkgs_installed "${APT_CORE_UTILS[@]}"; }
+detect_git()            { lis_pkgs_installed "${APT_GIT[@]}"; }
+detect_curl()           { lis_pkgs_installed "${APT_CURL[@]}"; }
+detect_gpg()            { lis_pkgs_installed "${APT_GPG[@]}"; }
+detect_jq()             { lis_pkgs_installed "${APT_JQ[@]}"; }
+detect_p7zip()          { lis_pkgs_installed "${APT_7ZIP[@]}"; }
 detect_gnome_tooling()  { lis_pkgs_installed "${APT_GNOME_TOOLING[@]}"; }
 detect_build_tools()    { lis_pkgs_installed "${APT_BUILD_TOOLS[@]}"; }
 detect_terminal()       { lis_pkgs_installed "${APT_TERMINAL[@]}"; }
 detect_python_runtime() { lis_pkgs_installed "${APT_PYTHON[@]}"; }
 detect_desktop_utils()  { lis_pkgs_installed "${APT_DESKTOP_UTILS[@]}"; }
 detect_audio_speech()   { lis_pkgs_installed "${APT_AUDIO_SPEECH[@]}"; }
-detect_multimedia()     { lis_pkgs_installed "${APT_MULTIMEDIA[@]}"; }
+detect_vlc()            { lis_pkgs_installed "${APT_VLC[@]}"; }
+detect_obs()            { lis_pkgs_installed "${APT_OBS[@]}"; }
+detect_easyeffects()    { lis_pkgs_installed "${APT_EASYEFFECTS[@]}"; }
 detect_remote_desktop() { lis_pkgs_installed "${APT_REMOTE_DESKTOP[@]}"; }
 detect_tmux()           { lis_pkgs_installed "${APT_TMUX[@]}"; }
 detect_virtualization() { lis_pkgs_installed "${APT_VIRTUALIZATION[@]}"; }
@@ -84,6 +90,21 @@ uninstall_etcher() {
   lis_require_root "remove balenaEtcher" || return 0
   msg "Removing balenaEtcher"
   apt remove -y balena-etcher balena-etcher-electron 2>/dev/null || true
+}
+uninstall_vlc() {
+  lis_require_root "remove VLC" || return 0
+  msg "Removing VLC"
+  apt remove -y vlc 2>/dev/null || true
+}
+uninstall_obs() {
+  lis_require_root "remove OBS Studio" || return 0
+  msg "Removing OBS Studio"
+  apt remove -y obs-studio 2>/dev/null || true
+}
+uninstall_easyeffects() {
+  lis_require_root "remove EasyEffects" || return 0
+  msg "Removing EasyEffects"
+  apt remove -y easyeffects 2>/dev/null || true
 }
 uninstall_gh_cli() {
   lis_require_root "remove GitHub CLI" || return 0
