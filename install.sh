@@ -202,9 +202,7 @@ run_and_log_with_reboot() {
   if [[ "${INSTALLER_NO_REBOOT:-0}" == "1" ]]; then
     msg "Skipping reboot due to INSTALLER_NO_REBOOT=1"
   else
-    msg "Rebooting now in 10 seconds. Press Ctrl+C to cancel."
-    sleep 10
-    reboot
+    safe_system_action reboot
   fi
 }
 
