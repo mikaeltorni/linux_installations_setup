@@ -169,6 +169,51 @@ run_tests() {
     )
   }
 
+  desktop_application_components_are_favorite_capable() {
+    # Every "Desktop applications" component must be pinnable as a dock
+    # favourite from the master menu — no hand-maintained exclusions (the old
+    # split lists silently dropped vlc, etcher, and albert from favourites).
+    ( load_env
+      local favorite_ids id label default fn detect uninstall section
+      favorite_ids="$(lis_list_favorite_components | cut -f1)"
+      for entry in "${ISC_COMPONENTS[@]}"; do
+        IFS='|' read -r id label default fn detect uninstall section _ <<<"$entry"
+        [ "$section" = "Desktop applications" ] || continue
+        grep -qx "$id" <<<"$favorite_ids" || exit 1
+      done
+    )
+  }
+
+  favorite_and_startup_lists_share_desktop_metadata() {
+    # Both action lists are derived from LIS_DESKTOP_APPS, so an app can never
+    # again be eligible for one action but not the other, and the .desktop
+    # candidates can never drift apart between the two lists.
+    ( load_env
+      local fav_row start_row id fav_desktops start_desktops _default
+      while IFS=$'\t' read -r id fav_desktops _default; do
+        start_row="$(lis_list_startup_components | awk -F'\t' -v id="$id" '$1 == id')"
+        [ -n "$start_row" ] || exit 1
+        start_desktops="$(cut -f2 <<<"$start_row")"
+        [ "${fav_desktops//,/|}" = "$start_desktops" ] || exit 1
+      done < <(lis_list_favorite_components)
+    )
+  }
+
+  favorite_defaults_preserve_existing_dock() {
+    # Newly favourite-eligible apps must default OFF so unifying the metadata
+    # does not change which icons a clean install pins to the dock.
+    ( load_env
+      local output
+      output="$(lis_list_favorite_components)"
+      grep -qx $'vlc\tvlc.desktop\toff' <<<"$output"
+      grep -qx $'etcher\tbalena-etcher.desktop,balenaEtcher.desktop\toff' <<<"$output"
+      grep -qx $'albert\talbert.desktop\toff' <<<"$output"
+      grep -qx $'terminal\tkitty.desktop\ton' <<<"$output"
+      grep -qx $'chrome\tgoogle-chrome.desktop,com.google.Chrome.desktop\ton' <<<"$output"
+      grep -qx $'snap_spotify\tspotify.desktop,spotify_spotify.desktop\ton' <<<"$output"
+    )
+  }
+
   component_sections_are_contiguous() {
     ( load_env
       local entry section previous="" closed="" _id _label _default _fn _detect _uninstall
@@ -201,6 +246,9 @@ run_tests() {
   check "Node.js 22 is a default-on component" nodejs_22_component_contract
   check "startup metadata covers installed desktop apps" startup_metadata_covers_installed_desktop_apps
   check "every desktop application component supports [S]" desktop_application_components_are_startup_capable
+  check "every desktop application component supports [f]" desktop_application_components_are_favorite_capable
+  check "favorite and startup lists derive from one metadata table" favorite_and_startup_lists_share_desktop_metadata
+  check "favorite defaults preserve the existing dock selection" favorite_defaults_preserve_existing_dock
   check "component menu sections are contiguous" component_sections_are_contiguous
   check "application installers do not bypass [S] startup selection" application_installers_do_not_bypass_startup_selection
 

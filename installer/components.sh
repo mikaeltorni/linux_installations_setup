@@ -94,43 +94,64 @@ lis_install_nvidia() {
   fi
 }
 
+# LIS_DESKTOP_APPS - Single desktop-application action-metadata table.
+#
+# One row per component that owns a launchable .desktop entry, covering every
+# "Desktop applications" manifest row (plus nvidia, whose settings panel is a
+# desktop app even though the component lives under "Drivers & hardware").
+# Both lis_list_favorite_components and lis_list_startup_components derive
+# from this table, so an app can never be eligible for one master-menu action
+# ([f]/[s]/[1-9]/[p]) but silently excluded from another, and the .desktop
+# candidates cannot drift between the lists.
+#
+# Row format: "id|desktop candidates|startup default|favorite default".
+# Candidates are pipe-free here — use "&" between alternatives for the same
+# application (converted to "|" for startup and "," for favourites output).
+# Startup defaults preserve the setup chain's existing Spotify, GitKraken,
+# EasyEffects, and Albert login behavior; favourite defaults keep the dock of
+# a clean install unchanged (apps that were not favourite-eligible before the
+# lists were unified default to off).
+LIS_DESKTOP_APPS=(
+  "terminal|kitty.desktop|off|on"
+  "vlc|vlc.desktop|off|off"
+  "obs|com.obsproject.Studio.desktop|off|on"
+  "easyeffects|com.github.wwmm.easyeffects.desktop&org.gnome.EasyEffects.desktop|on|on"
+  "remote_desktop|org.remmina.Remmina.desktop&remmina.desktop|off|on"
+  "chrome|google-chrome.desktop&com.google.Chrome.desktop|off|on"
+  "etcher|balena-etcher.desktop&balenaEtcher.desktop|off|off"
+  "snap_gitkraken|gitkraken.desktop&gitkraken_gitkraken.desktop|on|on"
+  "snap_spotify|spotify.desktop&spotify_spotify.desktop|on|on"
+  "snap_discord|discord.desktop&discord_discord.desktop|off|on"
+  "albert|albert.desktop|on|off"
+  "nvidia|nvidia-settings.desktop|off|on"
+  "virtualization|virt-manager.desktop|off|on"
+)
+
 # lis_list_favorite_components - Print app components that can be pinned to the
 # GNOME dock from the master program-installation menu.
 #
-# Output format is id<TAB>comma-separated .desktop ids. The master installer
-# consumes this optional side-channel and passes the selected desktop ids to
-# linux_configuration_setup's favorites component as SELECTED_FAVORITE_APPS.
+# Output format is id<TAB>comma-separated .desktop ids<TAB>default(on/off).
+# The master installer consumes this optional side-channel and passes the
+# selected desktop ids to linux_configuration_setup's favorites component as
+# SELECTED_FAVORITE_APPS. Derived from LIS_DESKTOP_APPS (see above).
 lis_list_favorite_components() {
-  printf 'terminal\tkitty.desktop\n'
-  printf 'obs\tcom.obsproject.Studio.desktop\n'
-  printf 'easyeffects\tcom.github.wwmm.easyeffects.desktop\n'
-  printf 'remote_desktop\torg.remmina.Remmina.desktop,remmina.desktop\n'
-  printf 'chrome\tgoogle-chrome.desktop,com.google.Chrome.desktop\n'
-  printf 'snap_gitkraken\tgitkraken.desktop,gitkraken_gitkraken.desktop\n'
-  printf 'snap_spotify\tspotify.desktop,spotify_spotify.desktop\n'
-  printf 'snap_discord\tdiscord.desktop,discord_discord.desktop\n'
-  printf 'nvidia\tnvidia-settings.desktop\n'
-  printf 'virtualization\tvirt-manager.desktop\n'
+  local row id desktops _startup_default favorite_default
+  for row in "${LIS_DESKTOP_APPS[@]}"; do
+    IFS='|' read -r id desktops _startup_default favorite_default <<<"$row"
+    printf '%s\t%s\t%s\n' "$id" "${desktops//&/,}" "$favorite_default"
+  done
 }
 
 # lis_list_startup_components - Print app components that the master installer
-# can configure to launch at desktop login with its [s] menu action.
+# can configure to launch at desktop login with its [s] menu action. The same
+# rows advertise workspace ([1-9]) and all-workspaces ([p]) eligibility.
 #
 # Output is id<TAB>desktop candidates<TAB>default. Pipe-separated filenames are
-# alternatives for the same application. Defaults preserve the setup chain's
-# existing Spotify, GitKraken, EasyEffects, and Albert startup behavior.
+# alternatives for the same application. Derived from LIS_DESKTOP_APPS.
 lis_list_startup_components() {
-  printf 'terminal\tkitty.desktop\toff\n'
-  printf 'vlc\tvlc.desktop\toff\n'
-  printf 'obs\tcom.obsproject.Studio.desktop\toff\n'
-  printf 'easyeffects\tcom.github.wwmm.easyeffects.desktop|org.gnome.EasyEffects.desktop\ton\n'
-  printf 'remote_desktop\torg.remmina.Remmina.desktop|remmina.desktop\toff\n'
-  printf 'chrome\tgoogle-chrome.desktop|com.google.Chrome.desktop\toff\n'
-  printf 'etcher\tbalena-etcher.desktop|balenaEtcher.desktop\toff\n'
-  printf 'snap_gitkraken\tgitkraken.desktop|gitkraken_gitkraken.desktop\ton\n'
-  printf 'snap_spotify\tspotify.desktop|spotify_spotify.desktop\ton\n'
-  printf 'snap_discord\tdiscord.desktop|discord_discord.desktop\toff\n'
-  printf 'albert\talbert.desktop\ton\n'
-  printf 'nvidia\tnvidia-settings.desktop\toff\n'
-  printf 'virtualization\tvirt-manager.desktop\toff\n'
+  local row id desktops startup_default _favorite_default
+  for row in "${LIS_DESKTOP_APPS[@]}"; do
+    IFS='|' read -r id desktops startup_default _favorite_default <<<"$row"
+    printf '%s\t%s\t%s\n' "$id" "${desktops//&/|}" "$startup_default"
+  done
 }
