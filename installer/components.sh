@@ -121,7 +121,7 @@ LIS_DESKTOP_APPS=(
   "etcher|balena-etcher.desktop&balenaEtcher.desktop|off|off"
   "snap_gitkraken|gitkraken.desktop&gitkraken_gitkraken.desktop|on|on"
   "snap_spotify|spotify.desktop&spotify_spotify.desktop|on|on"
-  "snap_discord|discord.desktop&discord_discord.desktop|off|on"
+  "snap_discord|discord.desktop&discord_discord.desktop|on|on"
   "albert|albert.desktop|on|off"
   "nvidia|nvidia-settings.desktop|off|on"
   "virtualization|virt-manager.desktop|off|on"

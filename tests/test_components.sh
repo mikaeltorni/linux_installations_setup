@@ -153,6 +153,7 @@ run_tests() {
       grep -qx $'obs\tcom.obsproject.Studio.desktop\toff' <<<"$output"
       grep -qx $'easyeffects\tcom.github.wwmm.easyeffects.desktop|org.gnome.EasyEffects.desktop\ton' <<<"$output"
       grep -qx $'snap_spotify\tspotify.desktop|spotify_spotify.desktop\ton' <<<"$output"
+      grep -qx $'snap_discord\tdiscord.desktop|discord_discord.desktop\ton' <<<"$output"
       grep -qx $'chrome\tgoogle-chrome.desktop|com.google.Chrome.desktop\toff' <<<"$output"
     )
   }
