@@ -77,8 +77,6 @@ The tests simulate helper behavior and do not install packages:
 
 ```bash
 python3 tests/test_apt_helpers.py
-python3 tests/test_logging_utils.py
-python3 tests/test_patch_extension_metadata.py
 for test_file in tests/*.sh; do
   bash "$test_file"
 done
@@ -88,7 +86,7 @@ For syntax checks:
 
 ```bash
 bash -n install.sh lib/*.sh tests/*.sh
-python3 -m py_compile scripts/*.py tests/*.py
+python3 -m py_compile tests/*.py
 ```
 
 ## Module Layout
@@ -100,7 +98,6 @@ python3 -m py_compile scripts/*.py tests/*.py
 - `lib/hardware.sh`: NVIDIA detection, driver selection, and service setup
 - `lib/system_services.sh`: GitHub CLI authentication
 - `lib/logging.sh`: Centralized Bash installer logging
-- `scripts/logging_utils.py`: Centralized Python file logging and call tracing
 
 `lib/apt_helpers.sh` remains the compatibility entry point for package and
 application installer functions.
@@ -113,10 +110,8 @@ application installer functions.
   `INSTALLER_REQUIRE_GITHUB_LOGIN=1`.
 - NVIDIA service enablement is best-effort because service names vary by
   driver package and Ubuntu release.
-- `scripts/patch_extension_metadata.py` is a standalone helper that adds a
-  GNOME `shell-version` entry to an extension's `metadata.json`. It is invoked
-  by the wider installation workflow:
-  `python3 scripts/patch_extension_metadata.py <metadata.json> <shell-version>`.
+- Extension `metadata.json` pinning lives in `linux_configuration_setup`
+  (`lcs-tools patch-metadata`), not in this repository.
 
 ## Component selection
 
