@@ -98,6 +98,11 @@ APT_AUDIO_SPEECH=(
   pulseaudio-utils pipewire-audio speech-dispatcher espeak-ng sound-theme-freedesktop
 )
 
+# Optional hardware support for machines that need the distro-provided
+# firmware and Bluetooth userspace stack. The kernel-side btusb/btmtk modules
+# come from the running Ubuntu kernel and are not separate APT packages.
+APT_ESSENTIAL_DRIVERS=(linux-firmware bluez)
+
 # Multimedia applications. Keep each app independently selectable while
 # retaining APT_MULTIMEDIA as the compatibility union.
 APT_VLC=(vlc)

@@ -2,7 +2,7 @@
 # test_components.sh — Tests for the modular component manifest.
 #
 # Guards that every user-visible feature is exposed as an independently
-# selectable, default-on component, that each component maps to a defined
+# selectable component with an explicit default state, that each component maps to a defined
 # install function, and that the per-feature package groups together reproduce
 # the full APT_BASE_PACKAGES set (so a clean install installs everything unless
 # the user deselects a feature).
@@ -54,11 +54,11 @@ run_tests() {
     source installer/components.sh
   }
 
-  every_component_default_on() {
+  every_component_default_state_is_explicit() {
     ( load_env
       for entry in "${ISC_COMPONENTS[@]}"; do
         IFS='|' read -r _id _label default _fn <<< "$entry"
-        [ "$default" = "on" ] || exit 1
+        [ "$default" = "on" ] || [ "$default" = "off" ] || exit 1
       done
     )
   }
@@ -97,10 +97,24 @@ run_tests() {
       for want in git curl gpg jq p7zip vlc obs easyeffects \
                   virtualization remote_desktop tmux \
                   snap_gitkraken snap_spotify snap_discord chrome etcher \
-                  gh_cli github_login albert nvidia; do
+                  gh_cli github_login albert essential_drivers nvidia; do
         grep -qx "$want" <<< "$ids" || exit 1
       done
       ! grep -Eq '^(core_utils|multimedia)$' <<<"$ids"
+    )
+  }
+
+  essential_driver_component_is_opt_in_and_complete() {
+    ( load_env
+      local entry actual
+      entry="$(printf '%s\n' "${ISC_COMPONENTS[@]}" | awk -F'|' '$1 == "essential_drivers"')"
+      [ "$entry" = "essential_drivers|Essential hardware drivers (Linux firmware + Bluetooth)|off|lis_install_essential_drivers|detect_essential_drivers||Drivers & hardware" ] || exit 1
+      printf '%s\n' "${APT_ESSENTIAL_DRIVERS[@]}" | grep -qx linux-firmware
+      printf '%s\n' "${APT_ESSENTIAL_DRIVERS[@]}" | grep -qx bluez
+      apt_install() { printf '%s\n' "$*"; }
+      actual="$(lis_install_essential_drivers)"
+      [ "$actual" = "linux-firmware bluez" ] || exit 1
+      declare -F detect_essential_drivers >/dev/null 2>&1
     )
   }
 
@@ -238,10 +252,11 @@ run_tests() {
       "$PROJECT_DIR/lib" --include='*.sh'
   }
 
-  check "every component is default-on" every_component_default_on
+  check "every component has an explicit default state" every_component_default_state_is_explicit
   check "every component maps to a defined function" every_component_function_defined
   check "package groups reproduce APT_BASE_PACKAGES" groups_cover_base_packages
   check "all expected feature components are present" feature_components_present
+  check "essential drivers are opt-in and install firmware plus BlueZ" essential_driver_component_is_opt_in_and_complete
   check "discrete CLI and multimedia components install one package each" discrete_components_install_one_package_each
   check "keyring libraries are hidden in python runtime dependencies" keyring_hidden_dependency
   check "Node.js 22 is a default-on component" nodejs_22_component_contract
