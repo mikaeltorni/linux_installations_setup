@@ -29,6 +29,9 @@ See the full cross-repository map in
 - GitKraken, Spotify, and Discord through Snap
 - GitHub CLI, with optional interactive authentication
 - Albert launcher
+- Optional essential hardware support: Ubuntu firmware and the BlueZ Bluetooth
+  userspace stack. The kernel-side Bluetooth drivers are supplied by Ubuntu's
+  running kernel.
 - NVIDIA drivers and CUDA packages when NVIDIA hardware is detected
 
 ## Requirements
@@ -96,6 +99,8 @@ python3 -m py_compile tests/*.py
 - `lib/albert_installer.sh`: Albert OBS series detection, installation, and autostart
 - `lib/snap_installer.sh`: Snap application installation
 - `lib/hardware.sh`: NVIDIA detection, driver selection, and service setup
+- `lib/apt_packages.sh`: APT cache management and selectable package groups,
+  including the opt-in essential hardware support group
 - `lib/system_services.sh`: GitHub CLI authentication
 - `lib/logging.sh`: Centralized Bash installer logging
 
@@ -151,8 +156,10 @@ The core command-line tools are also independent components (`git`, `curl`,
 legacy aggregate installation helper, but the menu no longer couples their
 selection.
 
-Every feature is its own independently selectable component, all default-on,
-so a clean install reproduces the full setup while you can deselect anything.
+Every feature is its own independently selectable component. Most components
+are default-on so a clean install reproduces the full setup; essential hardware
+support is intentionally opt-in because Ubuntu Desktop commonly already ships
+the firmware and Bluetooth stack.
 The submenu groups rows into **Core CLI utilities**, **System dependencies**,
 **Desktop applications**, and **Drivers & hardware**. Every row in Desktop
 applications supports the master menu's `[S]` startup action.
@@ -185,6 +192,7 @@ applications supports the master menu's `[S]` startup action.
 | `gh_cli` | GitHub CLI | on |
 | `github_login` | GitHub login (gh auth) | on |
 | `albert` | Albert launcher | on |
+| `essential_drivers` | Essential hardware drivers (Linux firmware + Bluetooth) | off |
 | `nvidia` | NVIDIA drivers (if a GPU is detected) | on |
 
 ## Detect, reconfigure, and uninstall

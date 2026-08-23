@@ -2,10 +2,10 @@
 # components.sh - Component manifest for linux_installations_setup.
 #
 # Maps each base-system feature to the install_* function that performs it.
-# Every user-visible feature is its own independently selectable component, all
-# default-on, so a clean install reproduces the full setup while the user can
-# deselect any feature. install.sh sources the lib files first, then this
-# manifest, then routes execution through component_main from
+# Every user-visible feature is its own independently selectable component.
+# Components are default-on unless an installation is intentionally opt-in.
+# install.sh sources the lib files first, then this manifest, then routes
+# execution through component_main from
 # component_runtime.sh.
 #
 # This repository hard-requires root: lis_preflight aborts the run if not root.
@@ -48,6 +48,7 @@ ISC_COMPONENTS=(
   "snap_spotify|Spotify (snap)|on|lis_install_snap_spotify|detect_snap_spotify|uninstall_snap_spotify|Desktop applications"
   "snap_discord|Discord (snap)|on|lis_install_snap_discord|detect_snap_discord|uninstall_snap_discord|Desktop applications"
   "albert|Albert launcher|on|install_albert|detect_albert|uninstall_albert|Desktop applications"
+  "essential_drivers|Essential hardware drivers (Linux firmware + Bluetooth)|off|lis_install_essential_drivers|detect_essential_drivers||Drivers & hardware"
   "nvidia|NVIDIA drivers (if a GPU is detected)|on|lis_install_nvidia|detect_nvidia||Drivers & hardware"
 )
 
@@ -71,6 +72,7 @@ lis_install_terminal()        { install_pkg_group "Kitty terminal"              
 lis_install_python_runtime()  { install_pkg_group "Python runtime & libraries"    "${APT_PYTHON[@]}"; }
 lis_install_desktop_utils()   { install_pkg_group "X11 & desktop utilities"       "${APT_DESKTOP_UTILS[@]}"; }
 lis_install_audio_speech()    { install_pkg_group "audio & speech"                "${APT_AUDIO_SPEECH[@]}"; }
+lis_install_essential_drivers() { install_pkg_group "essential hardware drivers (Linux firmware + Bluetooth)" "${APT_ESSENTIAL_DRIVERS[@]}"; }
 lis_install_vlc()             { install_pkg_group "VLC"                           "${APT_VLC[@]}"; }
 lis_install_obs()             { install_pkg_group "OBS Studio"                    "${APT_OBS[@]}"; }
 lis_install_easyeffects()     { install_pkg_group "EasyEffects"                   "${APT_EASYEFFECTS[@]}"; }

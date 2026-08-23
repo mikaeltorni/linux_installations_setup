@@ -34,6 +34,7 @@ detect_terminal()       { lis_pkgs_installed "${APT_TERMINAL[@]}"; }
 detect_python_runtime() { lis_pkgs_installed "${APT_PYTHON[@]}"; }
 detect_desktop_utils()  { lis_pkgs_installed "${APT_DESKTOP_UTILS[@]}"; }
 detect_audio_speech()   { lis_pkgs_installed "${APT_AUDIO_SPEECH[@]}"; }
+detect_essential_drivers() { lis_pkgs_installed "${APT_ESSENTIAL_DRIVERS[@]}"; }
 detect_vlc()            { lis_pkgs_installed "${APT_VLC[@]}"; }
 detect_obs()            { lis_pkgs_installed "${APT_OBS[@]}"; }
 detect_easyeffects()    { lis_pkgs_installed "${APT_EASYEFFECTS[@]}"; }
