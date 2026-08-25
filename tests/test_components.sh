@@ -51,6 +51,7 @@ run_tests() {
     source lib/apt_helpers.sh
     source lib/system_services.sh
     source lib/nodejs_installer.sh
+    source lib/bluetooth.sh
     source installer/components.sh
   }
 
@@ -97,7 +98,7 @@ run_tests() {
       for want in git curl gpg jq p7zip vlc obs easyeffects \
                   virtualization remote_desktop tmux \
                   snap_gitkraken snap_spotify snap_discord chrome etcher \
-                  gh_cli github_login albert essential_drivers nvidia; do
+                  gh_cli github_login albert essential_drivers bluetooth_kernel_fix nvidia; do
         grep -qx "$want" <<< "$ids" || exit 1
       done
       ! grep -Eq '^(core_utils|multimedia)$' <<<"$ids"
@@ -115,6 +116,17 @@ run_tests() {
       actual="$(lis_install_essential_drivers)"
       [ "$actual" = "linux-firmware bluez" ] || exit 1
       declare -F detect_essential_drivers >/dev/null 2>&1
+    )
+  }
+
+  bluetooth_kernel_fix_component_is_opt_in_and_depends_on_essential_drivers() {
+    ( load_env
+      local entry
+      entry="$(printf '%s\n' "${ISC_COMPONENTS[@]}" | awk -F'|' '$1 == "bluetooth_kernel_fix"')"
+      [ "$entry" = "bluetooth_kernel_fix|Bluetooth MT7922 kernel fix (author's system; selects 6.17.0-40)|off|lis_configure_bluetooth_kernel_boot|detect_bluetooth_kernel_boot||Drivers & hardware|essential_drivers" ] || exit 1
+      declare -F lis_configure_bluetooth_kernel_boot >/dev/null 2>&1 || exit 1
+      declare -F detect_bluetooth_kernel_boot >/dev/null 2>&1 || exit 1
+      [ "${BLUETOOTH_KERNEL_VERSION:-6.17.0-40-generic}" = "6.17.0-40-generic" ]
     )
   }
 
@@ -257,6 +269,7 @@ run_tests() {
   check "package groups reproduce APT_BASE_PACKAGES" groups_cover_base_packages
   check "all expected feature components are present" feature_components_present
   check "essential drivers are opt-in and install firmware plus BlueZ" essential_driver_component_is_opt_in_and_complete
+  check "Bluetooth kernel fix is opt-in and depends on essential drivers" bluetooth_kernel_fix_component_is_opt_in_and_depends_on_essential_drivers
   check "discrete CLI and multimedia components install one package each" discrete_components_install_one_package_each
   check "keyring libraries are hidden in python runtime dependencies" keyring_hidden_dependency
   check "Node.js 22 is a default-on component" nodejs_22_component_contract

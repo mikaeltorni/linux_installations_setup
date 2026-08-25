@@ -32,6 +32,9 @@ See the full cross-repository map in
 - Optional essential hardware support: Ubuntu firmware and the BlueZ Bluetooth
   userspace stack. The kernel-side Bluetooth drivers are supplied by Ubuntu's
   running kernel.
+- Optional author-system Bluetooth workaround: backs up GRUB defaults and
+  selects the installed 6.17.0-40-generic kernel for the next boot. It is off
+  by default and never reboots the machine itself.
 - NVIDIA drivers and CUDA packages when NVIDIA hardware is detected
 
 ## Requirements
@@ -67,6 +70,7 @@ The following environment variables are supported:
 | Variable | Purpose | Default |
 | --- | --- | --- |
 | `ETCHER_VERSION` | Balena Etcher release to install, or `latest` | `latest` |
+| `BLUETOOTH_KERNEL_VERSION` | Kernel selected by the opt-in Bluetooth fix | `6.17.0-40-generic` (author system) |
 | `NVIDIA_DRIVER_PACKAGE` | Override automatic NVIDIA driver selection | Auto-detected |
 | `ALBERT_OBS_SERIES` | Override the Albert OBS Ubuntu series | Auto-detected |
 | `INSTALLER_REQUIRE_GITHUB_LOGIN` | Force GitHub login even without a TTY | `0` |
@@ -99,6 +103,7 @@ python3 -m py_compile tests/*.py
 - `lib/albert_installer.sh`: Albert OBS series detection, installation, and autostart
 - `lib/snap_installer.sh`: Snap application installation
 - `lib/hardware.sh`: NVIDIA detection, driver selection, and service setup
+- `lib/bluetooth.sh`: GRUB backup and one-time kernel selection for Bluetooth
 - `lib/apt_packages.sh`: APT cache management and selectable package groups,
   including the opt-in essential hardware support group
 - `lib/system_services.sh`: GitHub CLI authentication
@@ -115,6 +120,12 @@ application installer functions.
   `INSTALLER_REQUIRE_GITHUB_LOGIN=1`.
 - NVIDIA service enablement is best-effort because service names vary by
   driver package and Ubuntu release.
+- `bluetooth_kernel_fix` is an opt-in workaround for the author's MediaTek
+  MT7922 system. It depends on `essential_drivers`, backs up
+  `/etc/default/grub` as `/etc/default/grub.backup.<timestamp>`, resolves the
+  exact kernel menu ID from `/boot/grub/grub.cfg`, and writes a one-time
+  `next_entry` with `grub-reboot`. It does not reboot; use
+  `BLUETOOTH_KERNEL_VERSION` to target a different installed kernel.
 - Extension `metadata.json` pinning lives in `linux_configuration_setup`
   (`lcs-tools patch-metadata`), not in this repository.
 
@@ -158,8 +169,8 @@ selection.
 
 Every feature is its own independently selectable component. Most components
 are default-on so a clean install reproduces the full setup; essential hardware
-support is intentionally opt-in because Ubuntu Desktop commonly already ships
-the firmware and Bluetooth stack.
+support and the author-system Bluetooth kernel fix are intentionally opt-in.
+Ubuntu Desktop commonly already ships the firmware and Bluetooth stack.
 The submenu groups rows into **Core CLI utilities**, **System dependencies**,
 **Desktop applications**, and **Drivers & hardware**. Every row in Desktop
 applications supports the master menu's `[S]` startup action.
@@ -193,6 +204,7 @@ applications supports the master menu's `[S]` startup action.
 | `github_login` | GitHub login (gh auth) | on |
 | `albert` | Albert launcher | on |
 | `essential_drivers` | Essential hardware drivers (Linux firmware + Bluetooth) | off |
+| `bluetooth_kernel_fix` | Bluetooth MT7922 kernel fix (author's system; selects 6.17.0-40) | off |
 | `nvidia` | NVIDIA drivers (if a GPU is detected) | on |
 
 ## Detect, reconfigure, and uninstall
