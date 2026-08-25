@@ -23,6 +23,7 @@ DISPLAY_VAL="${DISPLAY:-:0}"
 USER_BUS="unix:path=${RUNTIME_DIR}/bus"
 
 ETCHER_VERSION="${ETCHER_VERSION:-latest}"
+BLUETOOTH_KERNEL_VERSION="${BLUETOOTH_KERNEL_VERSION:-6.17.0-40-generic}"
 
 source "$SCRIPT_DIR/lib/logging.sh"
 
@@ -41,6 +42,7 @@ isc_load_helpers
 
 source "$SCRIPT_DIR/lib/hardware.sh"
 source "$SCRIPT_DIR/lib/apt_helpers.sh"
+source "$SCRIPT_DIR/lib/bluetooth.sh"
 source "$SCRIPT_DIR/lib/system_services.sh"
 source "$SCRIPT_DIR/lib/nodejs_installer.sh"
 

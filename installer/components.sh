@@ -49,6 +49,7 @@ ISC_COMPONENTS=(
   "snap_discord|Discord (snap)|on|lis_install_snap_discord|detect_snap_discord|uninstall_snap_discord|Desktop applications"
   "albert|Albert launcher|on|install_albert|detect_albert|uninstall_albert|Desktop applications"
   "essential_drivers|Essential hardware drivers (Linux firmware + Bluetooth)|off|lis_install_essential_drivers|detect_essential_drivers||Drivers & hardware"
+  "bluetooth_kernel_fix|Bluetooth MT7922 kernel fix (author's system; selects 6.17.0-40)|off|lis_configure_bluetooth_kernel_boot|detect_bluetooth_kernel_boot||Drivers & hardware|essential_drivers"
   "nvidia|NVIDIA drivers (if a GPU is detected)|on|lis_install_nvidia|detect_nvidia||Drivers & hardware"
 )
 
@@ -73,6 +74,7 @@ lis_install_python_runtime()  { install_pkg_group "Python runtime & libraries"  
 lis_install_desktop_utils()   { install_pkg_group "X11 & desktop utilities"       "${APT_DESKTOP_UTILS[@]}"; }
 lis_install_audio_speech()    { install_pkg_group "audio & speech"                "${APT_AUDIO_SPEECH[@]}"; }
 lis_install_essential_drivers() { install_pkg_group "essential hardware drivers (Linux firmware + Bluetooth)" "${APT_ESSENTIAL_DRIVERS[@]}"; }
+lis_configure_bluetooth_kernel_boot() { configure_bluetooth_kernel_boot; }
 lis_install_vlc()             { install_pkg_group "VLC"                           "${APT_VLC[@]}"; }
 lis_install_obs()             { install_pkg_group "OBS Studio"                    "${APT_OBS[@]}"; }
 lis_install_easyeffects()     { install_pkg_group "EasyEffects"                   "${APT_EASYEFFECTS[@]}"; }
