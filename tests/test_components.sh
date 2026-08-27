@@ -175,12 +175,12 @@ run_tests() {
                   virtualization; do
         grep -qx "$want" <<<"$ids" || exit 1
       done
-      grep -qx $'vlc\tvlc.desktop\toff' <<<"$output"
-      grep -qx $'obs\tcom.obsproject.Studio.desktop\toff' <<<"$output"
-      grep -qx $'easyeffects\tcom.github.wwmm.easyeffects.desktop|org.gnome.EasyEffects.desktop\ton' <<<"$output"
-      grep -qx $'snap_spotify\tspotify.desktop|spotify_spotify.desktop\ton' <<<"$output"
-      grep -qx $'snap_discord\tdiscord.desktop|discord_discord.desktop\ton' <<<"$output"
-      grep -qx $'chrome\tgoogle-chrome.desktop|com.google.Chrome.desktop\toff' <<<"$output"
+      grep -qx $'vlc\tvlc.desktop\toff\t0' <<<"$output"
+      grep -qx $'obs\tcom.obsproject.Studio.desktop\toff\t0' <<<"$output"
+      grep -qx $'easyeffects\tcom.github.wwmm.easyeffects.desktop|org.gnome.EasyEffects.desktop\ton\t0' <<<"$output"
+      grep -qx $'snap_spotify\tspotify.desktop|spotify_spotify.desktop\ton\t1' <<<"$output"
+      grep -qx $'snap_discord\tdiscord.desktop|discord_discord.desktop\ton\t1' <<<"$output"
+      grep -qx $'chrome\tgoogle-chrome.desktop|com.google.Chrome.desktop\toff\t0' <<<"$output"
     )
   }
 
@@ -241,6 +241,23 @@ run_tests() {
     )
   }
 
+  startup_monitor_defaults_pin_media_apps_to_monitor_one() {
+    # The [m] master action reads its clean-install defaults from the fourth
+    # startup column: Spotify and Discord open on display 1, everything else
+    # stays unpinned (0) and keeps following the session's own placement.
+    ( load_env
+      local output id _desktops _startup monitor
+      output="$(lis_list_startup_components)"
+      while IFS=$'\t' read -r id _desktops _startup monitor; do
+        [ -n "$monitor" ] || exit 1
+        case "$id" in
+          snap_spotify|snap_discord) [ "$monitor" = "1" ] || exit 1 ;;
+          *) [ "$monitor" = "0" ] || exit 1 ;;
+        esac
+      done <<<"$output"
+    )
+  }
+
   component_sections_are_contiguous() {
     ( load_env
       local entry section previous="" closed="" _id _label _default _fn _detect _uninstall
@@ -278,6 +295,7 @@ run_tests() {
   check "every desktop application component supports [f]" desktop_application_components_are_favorite_capable
   check "favorite and startup lists derive from one metadata table" favorite_and_startup_lists_share_desktop_metadata
   check "favorite defaults preserve the existing dock selection" favorite_defaults_preserve_existing_dock
+  check "startup rows advertise Spotify/Discord monitor defaults" startup_monitor_defaults_pin_media_apps_to_monitor_one
   check "component menu sections are contiguous" component_sections_are_contiguous
   check "application installers do not bypass [S] startup selection" application_installers_do_not_bypass_startup_selection
 

@@ -108,27 +108,34 @@ lis_install_nvidia() {
 # ([f]/[s]/[1-9]/[p]) but silently excluded from another, and the .desktop
 # candidates cannot drift between the lists.
 #
-# Row format: "id|desktop candidates|startup default|favorite default".
+# Row format:
+#   "id|desktop candidates|startup default|favorite default|monitor default".
 # Candidates are pipe-free here — use "&" between alternatives for the same
 # application (converted to "|" for startup and "," for favourites output).
 # Startup defaults preserve the setup chain's existing Spotify, GitKraken,
 # EasyEffects, and Albert login behavior; favourite defaults keep the dock of
 # a clean install unchanged (apps that were not favourite-eligible before the
 # lists were unified default to off).
+#
+# The monitor default is the display number ([m] action, matching the numbering
+# in GNOME Settings → Displays) an app's windows are pinned to. 0 means "no
+# pin": the window opens wherever the session would place it anyway (on the
+# monitor holding the pointer). Spotify and Discord default to monitor 1 —
+# the requested media/chat screen — and every other app stays unpinned.
 LIS_DESKTOP_APPS=(
-  "terminal|kitty.desktop|off|on"
-  "vlc|vlc.desktop|off|off"
-  "obs|com.obsproject.Studio.desktop|off|on"
-  "easyeffects|com.github.wwmm.easyeffects.desktop&org.gnome.EasyEffects.desktop|on|on"
-  "remote_desktop|org.remmina.Remmina.desktop&remmina.desktop|off|on"
-  "chrome|google-chrome.desktop&com.google.Chrome.desktop|off|on"
-  "etcher|balena-etcher.desktop&balenaEtcher.desktop|off|off"
-  "snap_gitkraken|gitkraken.desktop&gitkraken_gitkraken.desktop|on|on"
-  "snap_spotify|spotify.desktop&spotify_spotify.desktop|on|on"
-  "snap_discord|discord.desktop&discord_discord.desktop|on|on"
-  "albert|albert.desktop|on|off"
-  "nvidia|nvidia-settings.desktop|off|on"
-  "virtualization|virt-manager.desktop|off|on"
+  "terminal|kitty.desktop|off|on|0"
+  "vlc|vlc.desktop|off|off|0"
+  "obs|com.obsproject.Studio.desktop|off|on|0"
+  "easyeffects|com.github.wwmm.easyeffects.desktop&org.gnome.EasyEffects.desktop|on|on|0"
+  "remote_desktop|org.remmina.Remmina.desktop&remmina.desktop|off|on|0"
+  "chrome|google-chrome.desktop&com.google.Chrome.desktop|off|on|0"
+  "etcher|balena-etcher.desktop&balenaEtcher.desktop|off|off|0"
+  "snap_gitkraken|gitkraken.desktop&gitkraken_gitkraken.desktop|on|on|0"
+  "snap_spotify|spotify.desktop&spotify_spotify.desktop|on|on|1"
+  "snap_discord|discord.desktop&discord_discord.desktop|on|on|1"
+  "albert|albert.desktop|on|off|0"
+  "nvidia|nvidia-settings.desktop|off|on|0"
+  "virtualization|virt-manager.desktop|off|on|0"
 )
 
 # lis_list_favorite_components - Print app components that can be pinned to the
@@ -139,9 +146,9 @@ LIS_DESKTOP_APPS=(
 # selected desktop ids to linux_configuration_setup's favorites component as
 # SELECTED_FAVORITE_APPS. Derived from LIS_DESKTOP_APPS (see above).
 lis_list_favorite_components() {
-  local row id desktops _startup_default favorite_default
+  local row id desktops _startup_default favorite_default _monitor_default
   for row in "${LIS_DESKTOP_APPS[@]}"; do
-    IFS='|' read -r id desktops _startup_default favorite_default <<<"$row"
+    IFS='|' read -r id desktops _startup_default favorite_default _monitor_default <<<"$row"
     printf '%s\t%s\t%s\n' "$id" "${desktops//&/,}" "$favorite_default"
   done
 }
@@ -150,12 +157,15 @@ lis_list_favorite_components() {
 # can configure to launch at desktop login with its [s] menu action. The same
 # rows advertise workspace ([1-9]) and all-workspaces ([p]) eligibility.
 #
-# Output is id<TAB>desktop candidates<TAB>default. Pipe-separated filenames are
-# alternatives for the same application. Derived from LIS_DESKTOP_APPS.
+# Output is id<TAB>desktop candidates<TAB>startup default<TAB>monitor default.
+# Pipe-separated filenames are alternatives for the same application. The
+# fourth column is the default display number for the [m] action (0 = none);
+# masters that predate it simply ignore the extra column. Derived from
+# LIS_DESKTOP_APPS.
 lis_list_startup_components() {
-  local row id desktops startup_default _favorite_default
+  local row id desktops startup_default _favorite_default monitor_default
   for row in "${LIS_DESKTOP_APPS[@]}"; do
-    IFS='|' read -r id desktops startup_default _favorite_default <<<"$row"
-    printf '%s\t%s\t%s\n' "$id" "${desktops//&/|}" "$startup_default"
+    IFS='|' read -r id desktops startup_default _favorite_default monitor_default <<<"$row"
+    printf '%s\t%s\t%s\t%s\n' "$id" "${desktops//&/|}" "$startup_default" "${monitor_default:-0}"
   done
 }

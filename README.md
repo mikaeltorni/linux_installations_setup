@@ -162,6 +162,11 @@ startup launcher candidates through
 login; rows selected for favourite and startup display `FS`. Existing default
 startup behavior is preserved for Spotify, GitKraken, EasyEffects, and Albert.
 
+The same listing's fourth column carries each application's default display
+monitor for the master menu's **m** action (0 = unpinned). Spotify and Discord
+default to monitor 1; the master installer forwards the chosen numbers to
+`linux_workspaces_setup`, which writes the per-application placement rules.
+
 The core command-line tools are also independent components (`git`, `curl`,
 `gpg`, `jq`, and `p7zip`). Compatibility union arrays remain available to the
 legacy aggregate installation helper, but the menu no longer couples their
