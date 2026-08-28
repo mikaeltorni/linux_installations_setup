@@ -115,3 +115,32 @@ def test_successful_install_leaves_autostart_to_master_selection():
     assert proc.returncode == 0, proc.stderr
     assert ".config/autostart" not in proc.stdout
     assert "albert.desktop" not in proc.stdout
+
+
+def test_enables_applications_provider_without_clobbering_albert_config():
+    """Albert's Applications provider should be enabled idempotently."""
+    proc = run_bash(
+        albert_script(
+            "\n".join(
+                [
+                    "tmpdir=\"$(mktemp -d)\"",
+                    "trap 'rm -rf \"$tmpdir\"' EXIT",
+                    "TARGET_HOME=\"$tmpdir/home\"",
+                    "config=\"$TARGET_HOME/.config/albert/config\"",
+                    "mkdir -p \"$(dirname \"$config\")\"",
+                    "printf '%s\\n' '[General]' 'telemetry=false' '[applications]' 'enabled=false' '[custom]' 'value=kept' >\"$config\"",
+                    "run_as_target() { \"$@\"; }",
+                    "configure_albert_applications_plugin",
+                    "grep -Fxq '[General]' \"$config\"",
+                    "grep -Fxq '[applications]' \"$config\"",
+                    "grep -Fxq 'enabled=true' \"$config\"",
+                    "grep -Fxq '[custom]' \"$config\"",
+                    "grep -Fxq 'value=kept' \"$config\"",
+                    "[ \"$(grep -c '^\\[applications\\]$' \"$config\")\" -eq 1 ]",
+                    "[ \"$(grep -c '^enabled=' \"$config\")\" -eq 1 ]",
+                ]
+            )
+        )
+    )
+
+    assert proc.returncode == 0, proc.stderr
