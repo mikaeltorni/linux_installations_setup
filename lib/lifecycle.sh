@@ -3,7 +3,7 @@
 #
 # detect_* report live install state for --detect (read-only; safe without root).
 # Uninstall is provided only for the discrete application components (Chrome,
-# Etcher, multimedia apps, the snaps, GitHub CLI, Albert). Shared base package
+# Etcher, SmartGit, multimedia apps, the snaps, GitHub CLI, Albert). Shared base package
 # groups and core CLIs intentionally ship NO uninstall
 # function: apt-removing shared system toolchains is dangerous and could break
 # the desktop, so their [u] action only clears the install record (the shared
@@ -46,6 +46,7 @@ detect_virtualization() { lis_pkgs_installed "${APT_VIRTUALIZATION[@]}"; }
 # --- Detection: applications -------------------------------------------------
 detect_chrome()        { need_cmd google-chrome || need_cmd google-chrome-stable; }
 detect_etcher()        { need_cmd balena-etcher; }
+detect_smartgit()       { smartgit_installation_complete; }
 detect_snap_gitkraken(){ lis_snap_installed "${SNAP_GITKRAKEN[@]}"; }
 detect_snap_spotify()  { lis_snap_installed "${SNAP_SPOTIFY[@]}"; }
 detect_snap_discord()  { lis_snap_installed "${SNAP_DISCORD[@]}"; }
@@ -92,6 +93,16 @@ uninstall_etcher() {
   lis_require_root "remove balenaEtcher" || return 0
   msg "Removing balenaEtcher"
   apt remove -y balena-etcher balena-etcher-electron 2>/dev/null || true
+}
+uninstall_smartgit() {
+  lis_require_root "remove SmartGit" || return 0
+  msg "Removing SmartGit ${SMARTGIT_VERSION}"
+  rm -f -- "$SMARTGIT_DESKTOP_FILE" "$SMARTGIT_LAUNCHER" "$(smartgit_current_dir)"
+  rm -rf -- "$(smartgit_install_dir)"
+  if command -v update-desktop-database >/dev/null 2>&1; then
+    update-desktop-database "$(dirname "$SMARTGIT_DESKTOP_FILE")" >/dev/null 2>&1 || \
+      log "warn" "Could not refresh the desktop application database after SmartGit removal."
+  fi
 }
 uninstall_vlc() {
   lis_require_root "remove VLC" || return 0

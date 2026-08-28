@@ -1,9 +1,10 @@
 #!/usr/bin/env bash
-# app_installer.sh — Application installers (Chrome, Etcher, GH CLI)
+# app_installer.sh — Application installers (Chrome, Etcher, SmartGit, GH CLI)
 #
 # Components:
 #   - install_google_chrome(): Download and install Google Chrome stable from official repo.
 #   - install_balena_etcher(): Download, extract, and install Balena Etcher portable.
+#   - install_smartgit(): Download and install the pinned official SmartGit archive.
 #   - install_gh_cli(): Add GitHub CLI APT repo and install gh.
 #   - lib/albert_installer.sh: Albert repository detection and installation.
 #   - lib/snap_installer.sh: Snap application installation.
@@ -15,6 +16,140 @@ unset _APP_INSTALLER_DIR
 
 GH_CLI_APT_KEYRING="/etc/apt/keyrings/githubcli-archive-keyring.gpg"
 GH_CLI_APT_SOURCE="/etc/apt/sources.list.d/github-cli.list"
+
+# SmartGit is distributed as an official Linux archive rather than an Ubuntu
+# repository. Keep the release URL and SHA-256 together so clean installs are
+# reproducible and a changed upstream artifact cannot be installed silently.
+: "${SMARTGIT_VERSION:=26.1.052}"
+: "${SMARTGIT_ARCHIVE_URL:=https://download.smartgit.dev/smartgit/smartgit-26_1_052-linux-amd64.tar.gz}"
+: "${SMARTGIT_ARCHIVE_SHA256:=1c1c8cca8623cb336a951f2084b4681608591515d186bab7ee3f503d55e7c273}"
+: "${SMARTGIT_INSTALL_ROOT:=/opt}"
+: "${SMARTGIT_DESKTOP_FILE:=/usr/share/applications/smartgit.desktop}"
+: "${SMARTGIT_LAUNCHER:=/usr/local/bin/smartgit}"
+
+smartgit_install_dir() {
+  printf '%s/smartgit-%s\n' "$SMARTGIT_INSTALL_ROOT" "$SMARTGIT_VERSION"
+}
+
+smartgit_current_dir() {
+  printf '%s/smartgit\n' "$SMARTGIT_INSTALL_ROOT"
+}
+
+smartgit_runtime_package() {
+  if apt-cache show libgtk-3-0t64 >/dev/null 2>&1; then
+    printf '%s\n' libgtk-3-0t64
+  elif apt-cache show libgtk-3-0 >/dev/null 2>&1; then
+    printf '%s\n' libgtk-3-0
+  else
+    return 1
+  fi
+}
+
+# smartgit_installation_complete - Check the managed SmartGit files.
+#
+# Returns success only when the versioned archive, stable symlink, launcher,
+# and desktop entry are all present. This lets reinstall/reconfigure repair a
+# partially completed deployment without treating an unrelated `smartgit`
+# command in PATH as a complete installation.
+smartgit_installation_complete() {
+  local current_dir
+  current_dir="$(smartgit_current_dir)"
+  [ -x "$current_dir/bin/smartgit.sh" ] || return 1
+  [ -f "$current_dir/bin/smartgit.svg" ] || return 1
+  [ -L "$current_dir" ] || return 1
+  [ -L "$SMARTGIT_LAUNCHER" ] || return 1
+  [ -x "$SMARTGIT_LAUNCHER" ] || return 1
+  [ -f "$SMARTGIT_DESKTOP_FILE" ]
+}
+
+install_smartgit() {
+  local install_dir current_dir desktop_file launcher gtk_package
+  install_dir="$(smartgit_install_dir)"
+  current_dir="$(smartgit_current_dir)"
+  desktop_file="$SMARTGIT_DESKTOP_FILE"
+  launcher="$SMARTGIT_LAUNCHER"
+
+  if smartgit_installation_complete; then
+    msg "SmartGit ${SMARTGIT_VERSION} already installed, skipping"
+    return 0
+  fi
+
+  msg "Installing SmartGit ${SMARTGIT_VERSION} from the official archive"
+  if gtk_package="$(smartgit_runtime_package)"; then
+    apt_install "$gtk_package"
+  else
+    log "warn" "No GTK 3 runtime package is available in the current APT cache; continuing with SmartGit archive installation."
+  fi
+
+  local tmpdir archive extracted
+  tmpdir="$(mktemp -d)" || {
+    log "error" "Could not create a temporary directory for SmartGit installation."
+    return 1
+  }
+  archive="$tmpdir/smartgit.tar.gz"
+  if ! curl -fsSL -o "$archive" -- "$SMARTGIT_ARCHIVE_URL"; then
+    log "error" "Failed to download SmartGit archive from $SMARTGIT_ARCHIVE_URL"
+    rm -rf -- "$tmpdir"
+    return 1
+  fi
+  if ! printf '%s  %s\n' "$SMARTGIT_ARCHIVE_SHA256" "$archive" | sha256sum -c - >/dev/null; then
+    log "error" "SmartGit archive checksum verification failed; refusing installation."
+    rm -rf -- "$tmpdir"
+    return 1
+  fi
+  if ! tar -xzf "$archive" -C "$tmpdir"; then
+    log "error" "Failed to extract the SmartGit archive."
+    rm -rf -- "$tmpdir"
+    return 1
+  fi
+  extracted="$tmpdir/smartgit"
+  if [ ! -x "$extracted/bin/smartgit.sh" ] || [ ! -f "$extracted/bin/smartgit.svg" ]; then
+    log "error" "SmartGit archive did not contain the expected launcher and icon."
+    rm -rf -- "$tmpdir"
+    return 1
+  fi
+
+  {
+    printf '%s\n' '[Desktop Entry]' 'Version=1.0' 'Type=Application' 'Name=SmartGit'
+    printf '%s\n' 'Comment=Git client' "Exec=$current_dir/bin/smartgit.sh %U"
+    printf '%s\n' "Icon=$current_dir/bin/smartgit.svg" 'Terminal=false'
+    printf '%s\n' 'Categories=Development;RevisionControl;' 'StartupNotify=true'
+    printf '%s\n' 'StartupWMClass=SmartGit'
+  } >"$tmpdir/smartgit.desktop"
+  if command -v desktop-file-validate >/dev/null 2>&1 && \
+     ! desktop-file-validate "$tmpdir/smartgit.desktop"; then
+    log "error" "Generated SmartGit desktop entry failed validation."
+    rm -rf -- "$tmpdir"
+    return 1
+  fi
+
+  if ! install -m 0755 -d "$SMARTGIT_INSTALL_ROOT" "$(dirname "$desktop_file")" "$(dirname "$launcher")"; then
+    log "error" "Could not create SmartGit installation directories."
+    rm -rf -- "$tmpdir"
+    return 1
+  fi
+  if [ -e "$install_dir" ] || [ -L "$install_dir" ]; then
+    rm -rf -- "$install_dir"
+  fi
+  if ! mv "$extracted" "$install_dir"; then
+    log "error" "Could not move SmartGit into $install_dir"
+    rm -rf -- "$tmpdir"
+    return 1
+  fi
+  if ! ln -sfn "$install_dir" "$current_dir" || \
+     ! ln -sfn "$current_dir/bin/smartgit.sh" "$launcher" || \
+     ! install -m 0644 "$tmpdir/smartgit.desktop" "$desktop_file"; then
+    log "error" "Could not finish SmartGit launcher or desktop-entry installation."
+    rm -rf -- "$tmpdir"
+    return 1
+  fi
+  if command -v update-desktop-database >/dev/null 2>&1 && \
+     ! update-desktop-database "$(dirname "$desktop_file")" >/dev/null 2>&1; then
+    log "warn" "Could not refresh the desktop application database after SmartGit installation."
+  fi
+  rm -rf -- "$tmpdir"
+  log "info" "SmartGit ${SMARTGIT_VERSION} installed at $current_dir"
+}
 
 # gh_cli_apt_source_has_readable_keyring - validate the configured gh apt key.
 #

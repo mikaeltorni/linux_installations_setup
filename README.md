@@ -26,6 +26,7 @@ See the full cross-repository map in
   including Pillow for cursor asset conversion
 - Google Chrome
 - Balena Etcher
+- SmartGit from the pinned official Linux archive
 - GitKraken, Spotify, and Discord through Snap
 - GitHub CLI, with optional interactive authentication
 - Albert launcher
@@ -75,6 +76,10 @@ The following environment variables are supported:
 | `ALBERT_OBS_SERIES` | Override the Albert OBS Ubuntu series | Auto-detected |
 | `INSTALLER_REQUIRE_GITHUB_LOGIN` | Force GitHub login even without a TTY | `0` |
 | `INSTALLER_NO_REBOOT` | Skip the final reboot when set to `1` | `0` |
+| `SMARTGIT_VERSION` | SmartGit release directory name | `26.1.052` |
+| `SMARTGIT_ARCHIVE_URL` | SmartGit Linux archive URL | Official pinned archive |
+| `SMARTGIT_ARCHIVE_SHA256` | Expected SHA-256 for the archive | Official pinned checksum |
+| `SMARTGIT_INSTALL_ROOT` | Root directory for the versioned archive and stable symlink | `/opt` |
 | `INSTALLER_LOG_LEVEL` | Minimum log level: `debug`, `info`, `warn`, or `error` | `info` |
 | `INSTALLER_PRODUCTION` | Emit JSON log records when set to `1` | `0` |
 
@@ -99,7 +104,7 @@ python3 -m py_compile tests/*.py
 ## Module Layout
 
 - `lib/apt_packages.sh`: APT cache and base package installation
-- `lib/app_installer.sh`: Chrome, Etcher, and GitHub CLI installation
+- `lib/app_installer.sh`: Chrome, Etcher, SmartGit, and GitHub CLI installation
 - `lib/albert_installer.sh`: Albert OBS series detection, installation, and autostart
 - `lib/snap_installer.sh`: Snap application installation
 - `lib/hardware.sh`: NVIDIA detection, driver selection, and service setup
@@ -160,7 +165,7 @@ VLC, OBS, and EasyEffects now have separate components and expose individual
 startup launcher candidates through
 `--list-startup-components`. In the master menu, **s** toggles launch at desktop
 login; rows selected for favourite and startup display `FS`. Existing default
-startup behavior is preserved for Spotify, GitKraken, EasyEffects, and Albert.
+startup behavior is preserved for Spotify, GitKraken, SmartGit, EasyEffects, and Albert.
 
 The same listing's fourth column carries each application's default display
 monitor for the master menu's **m** action (0 = unpinned). Spotify and Discord
@@ -202,6 +207,7 @@ applications supports the master menu's `[S]` startup action.
 | `virtualization` | KVM/libvirt virtualization stack | on |
 | `chrome` | Google Chrome | on |
 | `etcher` | balenaEtcher | on |
+| `smartgit` | SmartGit (official Linux archive) | on |
 | `snap_gitkraken` | GitKraken (snap) | on |
 | `snap_spotify` | Spotify (snap) | on |
 | `snap_discord` | Discord (snap) | on |
