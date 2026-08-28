@@ -4,7 +4,8 @@
 # Components:
 #   - detect_albert_obs_series(): Map the host Ubuntu release to an OBS series.
 #   - install_albert(): Install Albert. Login startup is owned by the master [S]
-#     selection and linux_configuration_setup.
+#     selection and linux_configuration_setup. The native Applications provider
+#     is enabled here so installed desktop entries are searchable immediately.
 
 detect_albert_obs_series() {
   if [ -n "${ALBERT_OBS_SERIES:-}" ]; then
@@ -30,6 +31,61 @@ detect_albert_obs_series() {
   esac
 }
 
+configure_albert_applications_plugin() {
+  local config="$TARGET_HOME/.config/albert/config"
+
+  msg "Enabling Albert Applications provider"
+  if ! run_as_target bash -c '
+    set -e
+    config="$1"
+    install -m 0755 -d "$(dirname "$config")"
+    [ -f "$config" ] || : >"$config"
+
+    tmp="$(mktemp "${config}.tmp.XXXXXX")"
+    trap '\''rm -f -- "$tmp"'\'' EXIT
+    awk '\''
+      function add_enabled() {
+        if (in_applications && !enabled_seen) {
+          print "enabled=true"
+          enabled_seen=1
+        }
+      }
+      /^\[/ {
+        if ($0 == "[applications]") {
+          applications_seen=1
+          in_applications=1
+          print
+          next
+        }
+        if (in_applications) {
+          add_enabled()
+          in_applications=0
+        }
+      }
+      in_applications && /^[[:space:]]*enabled[[:space:]]*=/ {
+        if (!enabled_seen) {
+          print "enabled=true"
+          enabled_seen=1
+        }
+        next
+      }
+      { print }
+      END {
+        if (in_applications) add_enabled()
+        if (!applications_seen) {
+          print ""
+          print "[applications]"
+          print "enabled=true"
+        }
+      }
+    '\'' "$config" >"$tmp"
+    install -m 0644 "$tmp" "$config"
+  ' _ "$config"; then
+    log "warn" "Could not enable Albert Applications provider in $config."
+    return 1
+  fi
+}
+
 install_albert() {
   local series
   series="$(detect_albert_obs_series)" || true
@@ -53,5 +109,6 @@ install_albert() {
     rm -f /etc/apt/sources.list.d/home:manuelschneid3r.list /etc/apt/trusted.gpg.d/home_manuelschneid3r.gpg
     return 0
   fi
+  configure_albert_applications_plugin || true
   msg "Albert launcher installed"
 }
