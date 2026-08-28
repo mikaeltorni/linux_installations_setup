@@ -35,7 +35,13 @@ run_tests() {
 
   check "install_google_chrome defined" grep -q '^install_google_chrome()' "$APP_INSTALLER"
   check "install_balena_etcher defined" grep -q '^install_balena_etcher()' "$APP_INSTALLER"
+  check "install_smartgit defined" grep -q '^install_smartgit()' "$APP_INSTALLER"
   check "install_gh_cli defined" grep -q '^install_gh_cli()' "$APP_INSTALLER"
+  check "SmartGit archive is checksum pinned" grep -q 'SMARTGIT_ARCHIVE_SHA256' "$APP_INSTALLER"
+  check "SmartGit archive checksum is verified" grep -q 'sha256sum -c' "$APP_INSTALLER"
+  check "SmartGit desktop entry is installed" grep -q 'smartgit.desktop' "$APP_INSTALLER"
+  check "SmartGit detection is defined" grep -q '^detect_smartgit()' "$LIFECYCLE"
+  check "SmartGit uninstall is defined" grep -q '^uninstall_smartgit()' "$LIFECYCLE"
   check "gh source file ends in .list" grep -q 'sources.list.d/github-cli\.list' "$APP_INSTALLER"
   check "no extensionless gh source file" bash -c "! grep -q 'github-cli-list' '$APP_INSTALLER'"
   check "gh keyring is not truncated" bash -c "! grep -q 'bs=128 count=1' '$APP_INSTALLER'"
@@ -43,9 +49,50 @@ run_tests() {
   check "gh apt update failure is logged" grep -q 'apt update failed after adding GitHub CLI repo' "$APP_INSTALLER"
   check "gh detection validates apt source keyring" grep -q 'detect_gh_cli().*gh_cli_apt_source_has_readable_keyring' "$LIFECYCLE"
 
+  check "SmartGit archive installs a launchable desktop entry" smartgit_installer_round_trip
+
   echo ""
   echo "Results: $passed passed, $failed failed ($total total)"
   [ "$failed" -eq 0 ]
 }
+
+smartgit_installer_round_trip() (
+  set -euo pipefail
+
+  local tmpdir fixture_dir archive sha256
+  tmpdir="$(mktemp -d)"
+  fixture_dir="$tmpdir/smartgit"
+  mkdir -p "$fixture_dir/bin"
+  printf '%s\n' '#!/usr/bin/env bash' 'exit 0' > "$fixture_dir/bin/smartgit.sh"
+  chmod 0755 "$fixture_dir/bin/smartgit.sh"
+  printf '%s\n' '<svg xmlns="http://www.w3.org/2000/svg"/>' > "$fixture_dir/bin/smartgit.svg"
+  archive="$tmpdir/smartgit.tar.gz"
+  tar -czf "$archive" -C "$tmpdir" smartgit
+  sha256="$(sha256sum "$archive" | cut -d' ' -f1)"
+
+  SMARTGIT_INSTALL_ROOT="$tmpdir/opt"
+  SMARTGIT_DESKTOP_FILE="$tmpdir/applications/smartgit.desktop"
+  SMARTGIT_LAUNCHER="$tmpdir/bin/smartgit"
+  SMARTGIT_ARCHIVE_URL="file://$archive"
+  SMARTGIT_ARCHIVE_SHA256="$sha256"
+  source "$APP_INSTALLER"
+  source "$LIFECYCLE"
+  apt_install() { :; }
+  msg() { :; }
+  log() { :; }
+
+  install_smartgit || return 1
+  detect_smartgit || return 1
+  [ -L "$SMARTGIT_INSTALL_ROOT/smartgit" ] || return 1
+  [ -L "$SMARTGIT_LAUNCHER" ] || return 1
+  grep -Fxq "Exec=$SMARTGIT_INSTALL_ROOT/smartgit/bin/smartgit.sh %U" "$SMARTGIT_DESKTOP_FILE" || return 1
+  grep -Fxq "Icon=$SMARTGIT_INSTALL_ROOT/smartgit/bin/smartgit.svg" "$SMARTGIT_DESKTOP_FILE" || return 1
+
+  # A second pass must keep the complete installation intact and remain
+  # idempotent without downloading or overwriting the managed files.
+  install_smartgit || return 1
+  detect_smartgit || return 1
+  rm -rf "$tmpdir"
+)
 
 run_tests

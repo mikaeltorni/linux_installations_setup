@@ -97,7 +97,7 @@ run_tests() {
       ids="$(printf '%s\n' "${ISC_COMPONENTS[@]}" | cut -d'|' -f1)"
       for want in git curl gpg jq p7zip vlc obs easyeffects \
                   virtualization remote_desktop tmux \
-                  snap_gitkraken snap_spotify snap_discord chrome etcher \
+                  snap_gitkraken snap_spotify snap_discord chrome etcher smartgit \
                   gh_cli github_login albert essential_drivers bluetooth_kernel_fix nvidia; do
         grep -qx "$want" <<< "$ids" || exit 1
       done
@@ -171,7 +171,7 @@ run_tests() {
       output="$(lis_list_startup_components)"
       ids="$(cut -f1 <<<"$output")"
       for want in terminal vlc obs easyeffects remote_desktop chrome etcher \
-                  snap_gitkraken snap_spotify snap_discord albert nvidia \
+                  snap_gitkraken snap_spotify snap_discord smartgit albert nvidia \
                   virtualization; do
         grep -qx "$want" <<<"$ids" || exit 1
       done
@@ -181,6 +181,7 @@ run_tests() {
       grep -qx $'snap_spotify\tspotify.desktop|spotify_spotify.desktop\ton\t1' <<<"$output"
       grep -qx $'snap_discord\tdiscord.desktop|discord_discord.desktop\ton\t1' <<<"$output"
       grep -qx $'chrome\tgoogle-chrome.desktop|com.google.Chrome.desktop\toff\t0' <<<"$output"
+      grep -qx $'smartgit\tsmartgit.desktop\ton\t0' <<<"$output"
     )
   }
 
@@ -238,6 +239,7 @@ run_tests() {
       grep -qx $'terminal\tkitty.desktop\ton' <<<"$output"
       grep -qx $'chrome\tgoogle-chrome.desktop,com.google.Chrome.desktop\ton' <<<"$output"
       grep -qx $'snap_spotify\tspotify.desktop,spotify_spotify.desktop\ton' <<<"$output"
+      grep -qx $'smartgit\tsmartgit.desktop\ton' <<<"$output"
     )
   }
 

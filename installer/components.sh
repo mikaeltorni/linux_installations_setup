@@ -44,6 +44,7 @@ ISC_COMPONENTS=(
   "virtualization|KVM/libvirt virtualization stack|on|lis_install_virtualization|detect_virtualization||Desktop applications"
   "chrome|Google Chrome|on|install_google_chrome|detect_chrome|uninstall_chrome|Desktop applications"
   "etcher|balenaEtcher|on|install_balena_etcher|detect_etcher|uninstall_etcher|Desktop applications"
+  "smartgit|SmartGit|on|install_smartgit|detect_smartgit|uninstall_smartgit|Desktop applications"
   "snap_gitkraken|GitKraken (snap)|on|lis_install_snap_gitkraken|detect_snap_gitkraken|uninstall_snap_gitkraken|Desktop applications"
   "snap_spotify|Spotify (snap)|on|lis_install_snap_spotify|detect_snap_spotify|uninstall_snap_spotify|Desktop applications"
   "snap_discord|Discord (snap)|on|lis_install_snap_discord|detect_snap_discord|uninstall_snap_discord|Desktop applications"
@@ -113,7 +114,7 @@ lis_install_nvidia() {
 # Candidates are pipe-free here — use "&" between alternatives for the same
 # application (converted to "|" for startup and "," for favourites output).
 # Startup defaults preserve the setup chain's existing Spotify, GitKraken,
-# EasyEffects, and Albert login behavior; favourite defaults keep the dock of
+# SmartGit, EasyEffects, and Albert login behavior; favourite defaults keep the dock of
 # a clean install unchanged (apps that were not favourite-eligible before the
 # lists were unified default to off).
 #
@@ -130,6 +131,7 @@ LIS_DESKTOP_APPS=(
   "remote_desktop|org.remmina.Remmina.desktop&remmina.desktop|off|on|0"
   "chrome|google-chrome.desktop&com.google.Chrome.desktop|off|on|0"
   "etcher|balena-etcher.desktop&balenaEtcher.desktop|off|off|0"
+  "smartgit|smartgit.desktop|on|on|0"
   "snap_gitkraken|gitkraken.desktop&gitkraken_gitkraken.desktop|on|on|0"
   "snap_spotify|spotify.desktop&spotify_spotify.desktop|on|on|1"
   "snap_discord|discord.desktop&discord_discord.desktop|on|on|1"
