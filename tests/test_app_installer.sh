@@ -66,6 +66,7 @@ smartgit_installer_round_trip() (
   printf '%s\n' '#!/usr/bin/env bash' 'exit 0' > "$fixture_dir/bin/smartgit.sh"
   chmod 0755 "$fixture_dir/bin/smartgit.sh"
   printf '%s\n' '<svg xmlns="http://www.w3.org/2000/svg"/>' > "$fixture_dir/bin/smartgit.svg"
+  printf '%s' 'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk+A8AAQUBAScY42YAAAAASUVORK5CYII=' | base64 -d > "$fixture_dir/bin/smartgit-256.png"
   archive="$tmpdir/smartgit.tar.gz"
   tar -czf "$archive" -C "$tmpdir" smartgit
   sha256="$(sha256sum "$archive" | cut -d' ' -f1)"
@@ -86,7 +87,7 @@ smartgit_installer_round_trip() (
   [ -L "$SMARTGIT_INSTALL_ROOT/smartgit" ] || return 1
   [ -L "$SMARTGIT_LAUNCHER" ] || return 1
   grep -Fxq "Exec=$SMARTGIT_INSTALL_ROOT/smartgit/bin/smartgit.sh %U" "$SMARTGIT_DESKTOP_FILE" || return 1
-  grep -Fxq "Icon=$SMARTGIT_INSTALL_ROOT/smartgit/bin/smartgit.svg" "$SMARTGIT_DESKTOP_FILE" || return 1
+  grep -Fxq "Icon=$SMARTGIT_INSTALL_ROOT/smartgit/bin/smartgit-256.png" "$SMARTGIT_DESKTOP_FILE" || return 1
 
   # A second pass must keep the complete installation intact and remain
   # idempotent without downloading or overwriting the managed files.

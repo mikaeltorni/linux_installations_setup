@@ -48,18 +48,23 @@ smartgit_runtime_package() {
 # smartgit_installation_complete - Check the managed SmartGit files.
 #
 # Returns success only when the versioned archive, stable symlink, launcher,
-# and desktop entry are all present. This lets reinstall/reconfigure repair a
-# partially completed deployment without treating an unrelated `smartgit`
-# command in PATH as a complete installation.
+# PNG desktop icon, and desktop entry are all present and point at the current
+# stable path. This lets reinstall/reconfigure repair a partially completed or
+# stale deployment without treating an unrelated `smartgit` command in PATH as
+# a complete installation.
 smartgit_installation_complete() {
-  local current_dir
+  local current_dir desktop_file
   current_dir="$(smartgit_current_dir)"
+  desktop_file="$SMARTGIT_DESKTOP_FILE"
   [ -x "$current_dir/bin/smartgit.sh" ] || return 1
   [ -f "$current_dir/bin/smartgit.svg" ] || return 1
+  [ -f "$current_dir/bin/smartgit-256.png" ] || return 1
   [ -L "$current_dir" ] || return 1
   [ -L "$SMARTGIT_LAUNCHER" ] || return 1
   [ -x "$SMARTGIT_LAUNCHER" ] || return 1
-  [ -f "$SMARTGIT_DESKTOP_FILE" ]
+  [ -f "$desktop_file" ] || return 1
+  grep -Fxq "Exec=$current_dir/bin/smartgit.sh %U" "$desktop_file" || return 1
+  grep -Fxq "Icon=$current_dir/bin/smartgit-256.png" "$desktop_file"
 }
 
 install_smartgit() {
@@ -103,8 +108,10 @@ install_smartgit() {
     return 1
   fi
   extracted="$tmpdir/smartgit"
-  if [ ! -x "$extracted/bin/smartgit.sh" ] || [ ! -f "$extracted/bin/smartgit.svg" ]; then
-    log "error" "SmartGit archive did not contain the expected launcher and icon."
+  if [ ! -x "$extracted/bin/smartgit.sh" ] || \
+     [ ! -f "$extracted/bin/smartgit.svg" ] || \
+     [ ! -f "$extracted/bin/smartgit-256.png" ]; then
+    log "error" "SmartGit archive did not contain the expected launcher and PNG icon."
     rm -rf -- "$tmpdir"
     return 1
   fi
@@ -112,7 +119,7 @@ install_smartgit() {
   {
     printf '%s\n' '[Desktop Entry]' 'Version=1.0' 'Type=Application' 'Name=SmartGit'
     printf '%s\n' 'Comment=Git client' "Exec=$current_dir/bin/smartgit.sh %U"
-    printf '%s\n' "Icon=$current_dir/bin/smartgit.svg" 'Terminal=false'
+    printf '%s\n' "Icon=$current_dir/bin/smartgit-256.png" 'Terminal=false'
     printf '%s\n' 'Categories=Development;RevisionControl;' 'StartupNotify=true'
     printf '%s\n' 'StartupWMClass=SmartGit'
   } >"$tmpdir/smartgit.desktop"
