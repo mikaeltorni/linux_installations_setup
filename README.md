@@ -103,19 +103,18 @@ python3 -m py_compile tests/*.py
 
 ## Module Layout
 
-- `lib/apt_packages.sh`: APT cache and base package installation
+- `lib/apt_packages.sh`: APT cache management and selectable package groups,
+  including the opt-in essential hardware support group
 - `lib/app_installer.sh`: Chrome, Etcher, SmartGit, and GitHub CLI installation
 - `lib/albert_installer.sh`: Albert OBS series detection, installation, and autostart
 - `lib/snap_installer.sh`: Snap application installation
 - `lib/hardware.sh`: NVIDIA detection, driver selection, and service setup
 - `lib/bluetooth.sh`: GRUB backup and one-time kernel selection for Bluetooth
-- `lib/apt_packages.sh`: APT cache management and selectable package groups,
-  including the opt-in essential hardware support group
+- `lib/apt_helpers.sh`: Compatibility entry that sources package and app installers
+- `lib/lifecycle.sh`: Detect/uninstall helpers for selectable applications
+- `lib/nodejs_installer.sh`: Node.js 22 runtime installation
 - `lib/system_services.sh`: GitHub CLI authentication
 - `lib/logging.sh`: Centralized Bash installer logging
-
-`lib/apt_helpers.sh` remains the compatibility entry point for package and
-application installer functions.
 
 ## Notes
 
