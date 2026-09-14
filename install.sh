@@ -43,6 +43,7 @@ isc_load_helpers
 source "$SCRIPT_DIR/lib/hardware.sh"
 source "$SCRIPT_DIR/lib/apt_helpers.sh"
 source "$SCRIPT_DIR/lib/bluetooth.sh"
+source "$SCRIPT_DIR/lib/inotify_limits.sh"
 source "$SCRIPT_DIR/lib/system_services.sh"
 source "$SCRIPT_DIR/lib/nodejs_installer.sh"
 
