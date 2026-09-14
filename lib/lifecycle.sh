@@ -33,6 +33,7 @@ detect_build_tools()    { lis_pkgs_installed "${APT_BUILD_TOOLS[@]}"; }
 detect_terminal()       { lis_pkgs_installed "${APT_TERMINAL[@]}"; }
 detect_python_runtime() { lis_pkgs_installed "${APT_PYTHON[@]}"; }
 detect_desktop_utils()  { lis_pkgs_installed "${APT_DESKTOP_UTILS[@]}"; }
+detect_inotify_limits() { inotify_limits_configured; }
 detect_audio_speech()   { lis_pkgs_installed "${APT_AUDIO_SPEECH[@]}"; }
 detect_essential_drivers() { lis_pkgs_installed "${APT_ESSENTIAL_DRIVERS[@]}"; }
 detect_bluetooth_kernel_boot() { bluetooth_kernel_boot_configured; }
@@ -132,3 +133,9 @@ uninstall_albert() {
 uninstall_snap_gitkraken() { msg "Removing GitKraken snap"; command -v snap >/dev/null 2>&1 && snap remove gitkraken 2>/dev/null || true; }
 uninstall_snap_spotify()   { msg "Removing Spotify snap";   command -v snap >/dev/null 2>&1 && snap remove spotify  2>/dev/null || true; }
 uninstall_snap_discord()   { msg "Removing Discord snap";   command -v snap >/dev/null 2>&1 && snap remove discord  2>/dev/null || true; }
+uninstall_inotify_limits() {
+  lis_require_root "remove inotify sysctl drop-in" || return 0
+  msg "Removing inotify desktop sysctl drop-in"
+  log info "uninstall_inotify_limits: removing $INOTIFY_SYSCTL_FILE"
+  remove_inotify_limits
+}

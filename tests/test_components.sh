@@ -52,6 +52,7 @@ run_tests() {
     source lib/system_services.sh
     source lib/nodejs_installer.sh
     source lib/bluetooth.sh
+    source lib/inotify_limits.sh
     source installer/components.sh
   }
 
@@ -98,7 +99,8 @@ run_tests() {
       for want in git curl gpg jq p7zip vlc obs easyeffects \
                   virtualization remote_desktop tmux \
                   snap_gitkraken snap_spotify snap_discord chrome etcher smartgit \
-                  gh_cli github_login albert essential_drivers bluetooth_kernel_fix nvidia; do
+                  gh_cli github_login albert essential_drivers bluetooth_kernel_fix \
+                  nvidia inotify_limits; do
         grep -qx "$want" <<< "$ids" || exit 1
       done
       ! grep -Eq '^(core_utils|multimedia)$' <<<"$ids"

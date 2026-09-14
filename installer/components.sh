@@ -34,6 +34,7 @@ ISC_COMPONENTS=(
   "build_tools|Build toolchain & development headers|on|lis_install_build_tools|detect_build_tools||System dependencies"
   "python_runtime|Python runtime & libraries|on|lis_install_python_runtime|detect_python_runtime||System dependencies"
   "desktop_utils|X11 & desktop utilities (xdotool, screenshot)|on|lis_install_desktop_utils|detect_desktop_utils||System dependencies"
+  "inotify_limits|Raise inotify instances/watches (desktop agents/tmux)|on|lis_configure_inotify_limits|detect_inotify_limits|uninstall_inotify_limits|System dependencies"
   "audio_speech|Audio stack & speech synthesis|on|lis_install_audio_speech|detect_audio_speech||System dependencies"
   # GUI applications. Every row in this section exposes [S] startup metadata.
   "terminal|Kitty terminal emulator|on|lis_install_terminal|detect_terminal||Desktop applications"
@@ -73,6 +74,7 @@ lis_install_build_tools()     { install_pkg_group "build toolchain"             
 lis_install_terminal()        { install_pkg_group "Kitty terminal"                "${APT_TERMINAL[@]}"; }
 lis_install_python_runtime()  { install_pkg_group "Python runtime & libraries"    "${APT_PYTHON[@]}"; }
 lis_install_desktop_utils()   { install_pkg_group "X11 & desktop utilities"       "${APT_DESKTOP_UTILS[@]}"; }
+lis_configure_inotify_limits() { configure_inotify_limits; }
 lis_install_audio_speech()    { install_pkg_group "audio & speech"                "${APT_AUDIO_SPEECH[@]}"; }
 lis_install_essential_drivers() { install_pkg_group "essential hardware drivers (Linux firmware + Bluetooth)" "${APT_ESSENTIAL_DRIVERS[@]}"; }
 lis_configure_bluetooth_kernel_boot() { configure_bluetooth_kernel_boot; }

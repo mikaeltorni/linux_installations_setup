@@ -110,6 +110,7 @@ python3 -m py_compile tests/*.py
 - `lib/snap_installer.sh`: Snap application installation
 - `lib/hardware.sh`: NVIDIA detection, driver selection, and service setup
 - `lib/bluetooth.sh`: GRUB backup and one-time kernel selection for Bluetooth
+- `lib/inotify_limits.sh`: sysctl drop-in raising inotify instances/watches
 - `lib/apt_helpers.sh`: Compatibility entry that sources package and app installers
 - `lib/lifecycle.sh`: Detect/uninstall helpers for selectable applications
 - `lib/nodejs_installer.sh`: Node.js 22 runtime installation
@@ -197,6 +198,7 @@ applications supports the master menu's `[S]` startup action.
 | `terminal` | Kitty terminal emulator | on |
 | `python_runtime` | Python runtime & configuration libraries (includes Secret Service support) | on |
 | `desktop_utils` | X11 & desktop utilities (xdotool, screenshot) | on |
+| `inotify_limits` | Raise inotify instances/watches (desktop agents/tmux) | on |
 | `audio_speech` | Audio stack & speech synthesis | on |
 | `vlc` | VLC media player | on |
 | `obs` | OBS Studio | on |
