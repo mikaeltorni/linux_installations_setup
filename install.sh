@@ -4,7 +4,7 @@
 # This installer handles base system setup:
 #   - Installs base system packages and utilities
 #   - Detects hardware (NVIDIA GPU) and installs drivers
-#   - Installs applications (Chrome, Etcher, snaps, GH CLI, Albert)
+#   - Installs applications (Baobab, Chrome, Etcher, snaps, GH CLI, Albert)
 #
 # Note: Repository cloning and sub-repo orchestration is handled by the
 # master installer at installation_scripts/install.sh. This script focuses
@@ -80,6 +80,9 @@ APT_BUILD_TOOLS=(make gettext build-essential pkg-config libx11-dev libxi-dev li
 # Kitty terminal emulator.
 APT_TERMINAL=(kitty)
 
+# GNOME Disk Usage Analyzer.
+APT_BAOBAB=(baobab)
+
 # Python runtime and configuration libraries (evdev for hotkeys, Pillow for
 # cursor assets, PyGObject plus Secret Service libraries for the keyring
 # migration). The keyring libraries are intentionally part of this default group
@@ -126,7 +129,7 @@ APT_VIRTUALIZATION=(virtinst virt-manager libvirt-daemon-system libvirt-clients 
 APT_BASE_PACKAGES=(
   "${APT_CORE_UTILS[@]}" "${APT_GNOME_TOOLING[@]}" "${APT_BUILD_TOOLS[@]}"
   "${APT_TERMINAL[@]}" "${APT_PYTHON[@]}" "${APT_DESKTOP_UTILS[@]}"
-  "${APT_AUDIO_SPEECH[@]}" "${APT_MULTIMEDIA[@]}" "${APT_REMOTE_DESKTOP[@]}"
+  "${APT_AUDIO_SPEECH[@]}" "${APT_MULTIMEDIA[@]}" "${APT_BAOBAB[@]}" "${APT_REMOTE_DESKTOP[@]}"
   "${APT_TMUX[@]}" "${APT_VIRTUALIZATION[@]}"
 )
 

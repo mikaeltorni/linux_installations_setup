@@ -24,6 +24,7 @@ See the full cross-repository map in
 
 - Base development, desktop, multimedia, remote desktop, and terminal packages,
   including Pillow for cursor asset conversion
+- Baobab (GNOME Disk Usage Analyzer), enabled in the default installation menu
 - Google Chrome
 - Balena Etcher
 - SmartGit from the pinned official Linux archive
@@ -160,6 +161,7 @@ When run through the master installer, app components that can become GNOME dock
 favourites expose their `.desktop` ids through `--list-favorite-components`. The
 master menu lets you toggle those with **f** and forwards the selected list to
 `linux_configuration_setup`.
+Baobab is selected as a dock favorite by default.
 
 VLC, OBS, and EasyEffects now have separate components and expose individual
 startup launcher candidates through
@@ -204,6 +206,7 @@ applications supports the master menu's `[S]` startup action.
 | `obs` | OBS Studio | on |
 | `easyeffects` | EasyEffects audio effects | on |
 | `remote_desktop` | Remmina remote desktop client | on |
+| `baobab` | Baobab disk usage analyzer | on |
 | `tmux` | tmux terminal multiplexer | on |
 | `virtualization` | KVM/libvirt virtualization stack | on |
 | `chrome` | Google Chrome | on |

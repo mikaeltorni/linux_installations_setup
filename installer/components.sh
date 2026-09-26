@@ -42,6 +42,7 @@ ISC_COMPONENTS=(
   "obs|OBS Studio|on|lis_install_obs|detect_obs|uninstall_obs|Desktop applications"
   "easyeffects|EasyEffects audio effects|on|lis_install_easyeffects|detect_easyeffects|uninstall_easyeffects|Desktop applications"
   "remote_desktop|Remmina remote desktop client|on|lis_install_remote_desktop|detect_remote_desktop||Desktop applications"
+  "baobab|Baobab disk usage analyzer|on|lis_install_baobab|detect_baobab||Desktop applications"
   "virtualization|KVM/libvirt virtualization stack|on|lis_install_virtualization|detect_virtualization||Desktop applications"
   "chrome|Google Chrome|on|install_google_chrome|detect_chrome|uninstall_chrome|Desktop applications"
   "etcher|balenaEtcher|on|install_balena_etcher|detect_etcher|uninstall_etcher|Desktop applications"
@@ -79,6 +80,7 @@ lis_install_audio_speech()    { install_pkg_group "audio & speech"              
 lis_install_essential_drivers() { install_pkg_group "essential hardware drivers (Linux firmware + Bluetooth)" "${APT_ESSENTIAL_DRIVERS[@]}"; }
 lis_configure_bluetooth_kernel_boot() { configure_bluetooth_kernel_boot; }
 lis_install_vlc()             { install_pkg_group "VLC"                           "${APT_VLC[@]}"; }
+lis_install_baobab()          { install_pkg_group "Baobab disk usage analyzer"  "${APT_BAOBAB[@]}"; }
 lis_install_obs()             { install_pkg_group "OBS Studio"                    "${APT_OBS[@]}"; }
 lis_install_easyeffects()     { install_pkg_group "EasyEffects"                   "${APT_EASYEFFECTS[@]}"; }
 lis_install_remote_desktop()  { install_pkg_group "Remmina remote desktop"        "${APT_REMOTE_DESKTOP[@]}"; }
@@ -131,6 +133,7 @@ LIS_DESKTOP_APPS=(
   "obs|com.obsproject.Studio.desktop|off|on|0"
   "easyeffects|com.github.wwmm.easyeffects.desktop&org.gnome.EasyEffects.desktop|on|on|0"
   "remote_desktop|org.remmina.Remmina.desktop&remmina.desktop|off|on|0"
+  "baobab|org.gnome.baobab.desktop|off|on|0"
   "chrome|google-chrome.desktop&com.google.Chrome.desktop|off|on|0"
   "etcher|balena-etcher.desktop&balenaEtcher.desktop|off|off|0"
   "smartgit|smartgit.desktop|on|on|0"
