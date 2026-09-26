@@ -82,7 +82,7 @@ run_tests() {
         "${APT_7ZIP[@]}" "${APT_GNOME_TOOLING[@]}" "${APT_BUILD_TOOLS[@]}"
         "${APT_TERMINAL[@]}" "${APT_PYTHON[@]}" "${APT_DESKTOP_UTILS[@]}"
         "${APT_AUDIO_SPEECH[@]}" "${APT_VLC[@]}" "${APT_OBS[@]}"
-        "${APT_EASYEFFECTS[@]}" "${APT_REMOTE_DESKTOP[@]}"
+        "${APT_EASYEFFECTS[@]}" "${APT_BAOBAB[@]}" "${APT_REMOTE_DESKTOP[@]}"
         "${APT_TMUX[@]}" "${APT_VIRTUALIZATION[@]}"
       )
       local a b
@@ -99,7 +99,7 @@ run_tests() {
       for want in git curl gpg jq p7zip vlc obs easyeffects \
                   virtualization remote_desktop tmux \
                   snap_gitkraken snap_spotify snap_discord chrome etcher smartgit \
-                  gh_cli github_login albert essential_drivers bluetooth_kernel_fix \
+                  gh_cli github_login albert baobab essential_drivers bluetooth_kernel_fix \
                   nvidia inotify_limits; do
         grep -qx "$want" <<< "$ids" || exit 1
       done
@@ -137,7 +137,7 @@ run_tests() {
       local entry id fn expected actual
       for entry in \
         'git|git' 'curl|curl' 'gpg|gpg' 'jq|jq' 'p7zip|p7zip-full' \
-        'vlc|vlc' 'obs|obs-studio' 'easyeffects|easyeffects'; do
+        'vlc|vlc' 'obs|obs-studio' 'easyeffects|easyeffects' 'baobab|baobab'; do
         IFS='|' read -r id expected <<<"$entry"
         fn="$(printf '%s\n' "${ISC_COMPONENTS[@]}" | awk -F'|' -v id="$id" '$1 == id { print $4 }')"
         apt_install() { printf '%s\n' "$*"; }
@@ -167,6 +167,20 @@ run_tests() {
     )
   }
 
+  baobab_default_install_and_favorite_contract() {
+    ( load_env
+      local row
+      row="$(printf '%s\n' "${ISC_COMPONENTS[@]}" | awk -F'|' '$1 == "baobab"')"
+      [ "$row" = "baobab|Baobab disk usage analyzer|on|lis_install_baobab|detect_baobab||Desktop applications" ] || exit 1
+      printf '%s\n' "${APT_BASE_PACKAGES[@]}" | grep -qx baobab || exit 1
+      source "$PROJECT_DIR/lib/lifecycle.sh"
+      lis_pkgs_installed() { printf '%s\n' "$*"; }
+      [ "$(detect_baobab)" = "baobab" ] || exit 1
+      grep -qx $'baobab\torg.gnome.baobab.desktop\ton' <<<"$(lis_list_favorite_components)" || exit 1
+      grep -qx $'baobab\torg.gnome.baobab.desktop\toff\t0' <<<"$(lis_list_startup_components)"
+    )
+  }
+
   startup_metadata_covers_installed_desktop_apps() {
     ( load_env
       local output ids
@@ -174,7 +188,7 @@ run_tests() {
       ids="$(cut -f1 <<<"$output")"
       for want in terminal vlc obs easyeffects remote_desktop chrome etcher \
                   snap_gitkraken snap_spotify snap_discord smartgit albert nvidia \
-                  virtualization; do
+                  baobab virtualization; do
         grep -qx "$want" <<<"$ids" || exit 1
       done
       grep -qx $'vlc\tvlc.desktop\toff\t0' <<<"$output"
@@ -184,6 +198,7 @@ run_tests() {
       grep -qx $'snap_discord\tdiscord.desktop|discord_discord.desktop\ton\t1' <<<"$output"
       grep -qx $'chrome\tgoogle-chrome.desktop|com.google.Chrome.desktop\toff\t0' <<<"$output"
       grep -qx $'smartgit\tsmartgit.desktop\ton\t0' <<<"$output"
+      grep -qx $'baobab\torg.gnome.baobab.desktop\toff\t0' <<<"$output"
     )
   }
 
@@ -230,8 +245,8 @@ run_tests() {
   }
 
   favorite_defaults_preserve_existing_dock() {
-    # Newly favourite-eligible apps must default OFF so unifying the metadata
-    # does not change which icons a clean install pins to the dock.
+    # Keep apps outside the selected clean-install dock off unless they are
+    # deliberately added as a default favorite, like Baobab.
     ( load_env
       local output
       output="$(lis_list_favorite_components)"
@@ -242,6 +257,7 @@ run_tests() {
       grep -qx $'chrome\tgoogle-chrome.desktop,com.google.Chrome.desktop\ton' <<<"$output"
       grep -qx $'snap_spotify\tspotify.desktop,spotify_spotify.desktop\ton' <<<"$output"
       grep -qx $'smartgit\tsmartgit.desktop\ton' <<<"$output"
+      grep -qx $'baobab\torg.gnome.baobab.desktop\ton' <<<"$output"
     )
   }
 
@@ -294,6 +310,7 @@ run_tests() {
   check "discrete CLI and multimedia components install one package each" discrete_components_install_one_package_each
   check "keyring libraries are hidden in python runtime dependencies" keyring_hidden_dependency
   check "Node.js 22 is a default-on component" nodejs_22_component_contract
+  check "Baobab installs by default and is a default dock favorite" baobab_default_install_and_favorite_contract
   check "startup metadata covers installed desktop apps" startup_metadata_covers_installed_desktop_apps
   check "every desktop application component supports [S]" desktop_application_components_are_startup_capable
   check "every desktop application component supports [f]" desktop_application_components_are_favorite_capable
