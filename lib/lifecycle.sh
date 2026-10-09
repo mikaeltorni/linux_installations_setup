@@ -39,6 +39,16 @@ detect_essential_drivers() { lis_pkgs_installed "${APT_ESSENTIAL_DRIVERS[@]}"; }
 detect_bluetooth_kernel_boot() { bluetooth_kernel_boot_configured; }
 detect_vlc()            { lis_pkgs_installed "${APT_VLC[@]}"; }
 detect_baobab()         { lis_pkgs_installed "${APT_BAOBAB[@]}"; }
+detect_gparted() {
+  # Report whether GParted's APT package is installed.
+  # Parameters: none.
+  # Returns: success when every GParted package is installed.
+  printf '%s\n' 'parameters=none'
+  local result=0
+  lis_pkgs_installed "${APT_GPARTED[@]}" || result=$?
+  printf '%s\n' "$result"
+  return "$result"
+}
 detect_obs()            { lis_pkgs_installed "${APT_OBS[@]}"; }
 detect_easyeffects()    { lis_pkgs_installed "${APT_EASYEFFECTS[@]}"; }
 detect_remote_desktop() { lis_pkgs_installed "${APT_REMOTE_DESKTOP[@]}"; }

@@ -43,6 +43,7 @@ ISC_COMPONENTS=(
   "easyeffects|EasyEffects audio effects|on|lis_install_easyeffects|detect_easyeffects|uninstall_easyeffects|Desktop applications"
   "remote_desktop|Remmina remote desktop client|on|lis_install_remote_desktop|detect_remote_desktop||Desktop applications"
   "baobab|Baobab disk usage analyzer|on|lis_install_baobab|detect_baobab||Desktop applications"
+  "gparted|GParted partition editor|on|lis_install_gparted|detect_gparted||Desktop applications"
   "virtualization|KVM/libvirt virtualization stack|on|lis_install_virtualization|detect_virtualization||Desktop applications"
   "chrome|Google Chrome|on|install_google_chrome|detect_chrome|uninstall_chrome|Desktop applications"
   "etcher|balenaEtcher|on|install_balena_etcher|detect_etcher|uninstall_etcher|Desktop applications"
@@ -81,6 +82,16 @@ lis_install_essential_drivers() { install_pkg_group "essential hardware drivers 
 lis_configure_bluetooth_kernel_boot() { configure_bluetooth_kernel_boot; }
 lis_install_vlc()             { install_pkg_group "VLC"                           "${APT_VLC[@]}"; }
 lis_install_baobab()          { install_pkg_group "Baobab disk usage analyzer"  "${APT_BAOBAB[@]}"; }
+lis_install_gparted() {
+  # Install GParted through the shared package-group path.
+  # Parameters: none.
+  # Returns: the shared APT package installer status.
+  printf '%s\n' 'parameters=none'
+  local result=0
+  install_pkg_group "GParted partition editor" "${APT_GPARTED[@]}" || result=$?
+  printf '%s\n' "$result"
+  return "$result"
+}
 lis_install_obs()             { install_pkg_group "OBS Studio"                    "${APT_OBS[@]}"; }
 lis_install_easyeffects()     { install_pkg_group "EasyEffects"                   "${APT_EASYEFFECTS[@]}"; }
 lis_install_remote_desktop()  { install_pkg_group "Remmina remote desktop"        "${APT_REMOTE_DESKTOP[@]}"; }
@@ -134,6 +145,7 @@ LIS_DESKTOP_APPS=(
   "easyeffects|com.github.wwmm.easyeffects.desktop&org.gnome.EasyEffects.desktop|on|on|0"
   "remote_desktop|org.remmina.Remmina.desktop&remmina.desktop|off|on|0"
   "baobab|org.gnome.baobab.desktop|off|on|0"
+  "gparted|gparted.desktop|off|off|0"
   "chrome|google-chrome.desktop&com.google.Chrome.desktop|off|on|0"
   "etcher|balena-etcher.desktop&balenaEtcher.desktop|off|off|0"
   "smartgit|smartgit.desktop|on|on|0"

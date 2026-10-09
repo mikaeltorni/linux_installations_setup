@@ -76,6 +76,11 @@ run_tests() {
   }
 
   groups_cover_base_packages() {
+    # Compare feature package groups with the compatibility aggregate.
+    # Parameters: none.
+    # Returns: the equality check status (zero when both package sets match).
+    printf '%s\n' 'parameters=none'
+    local result
     ( load_env
       local union=(
         "${APT_GIT[@]}" "${APT_CURL[@]}" "${APT_GPG[@]}" "${APT_JQ[@]}"
@@ -83,13 +88,16 @@ run_tests() {
         "${APT_TERMINAL[@]}" "${APT_PYTHON[@]}" "${APT_DESKTOP_UTILS[@]}"
         "${APT_AUDIO_SPEECH[@]}" "${APT_VLC[@]}" "${APT_OBS[@]}"
         "${APT_EASYEFFECTS[@]}" "${APT_BAOBAB[@]}" "${APT_REMOTE_DESKTOP[@]}"
-        "${APT_TMUX[@]}" "${APT_VIRTUALIZATION[@]}"
+        "${APT_TMUX[@]}" "${APT_VIRTUALIZATION[@]}" "${APT_GPARTED[@]}"
       )
       local a b
       a="$(printf '%s\n' "${union[@]}" | sort)"
       b="$(printf '%s\n' "${APT_BASE_PACKAGES[@]}" | sort)"
       [ "$a" = "$b" ]
     )
+    result=$?
+    printf '%s\n' "$result"
+    return "$result"
   }
 
   feature_components_present() {
