@@ -82,6 +82,7 @@ APT_TERMINAL=(kitty)
 
 # GNOME Disk Usage Analyzer.
 APT_BAOBAB=(baobab)
+APT_GPARTED=(gparted)
 
 # Python runtime and configuration libraries (evdev for hotkeys, Pillow for
 # cursor assets, PyGObject plus Secret Service libraries for the keyring
@@ -129,7 +130,7 @@ APT_VIRTUALIZATION=(virtinst virt-manager libvirt-daemon-system libvirt-clients 
 APT_BASE_PACKAGES=(
   "${APT_CORE_UTILS[@]}" "${APT_GNOME_TOOLING[@]}" "${APT_BUILD_TOOLS[@]}"
   "${APT_TERMINAL[@]}" "${APT_PYTHON[@]}" "${APT_DESKTOP_UTILS[@]}"
-  "${APT_AUDIO_SPEECH[@]}" "${APT_MULTIMEDIA[@]}" "${APT_BAOBAB[@]}" "${APT_REMOTE_DESKTOP[@]}"
+  "${APT_AUDIO_SPEECH[@]}" "${APT_MULTIMEDIA[@]}" "${APT_BAOBAB[@]}" "${APT_GPARTED[@]}" "${APT_REMOTE_DESKTOP[@]}"
   "${APT_TMUX[@]}" "${APT_VIRTUALIZATION[@]}"
 )
 
