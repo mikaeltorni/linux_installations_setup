@@ -2,10 +2,10 @@
 
 > Part of [installation_scripts](https://github.com/mikaeltorni/installation_scripts) — the master installer that orchestrates a productivity-focused Ubuntu 24.04 desktop setup (workspaces, hotkeys, window tiling, programming tools, and more). Tested on Ubuntu 24.04.4 LTS.
 
-Installs the base desktop packages and applications used on an Ubuntu GNOME
-workstation. This repository is phase 1 of the larger installation workflow;
-repository cloning and later configuration phases belong in the master
-installer.
+The public entrypoint, `install.sh`, installs the base desktop packages and
+applications used on an Ubuntu GNOME workstation. This repository is phase 1 of
+the larger installation workflow; repository cloning and later configuration
+phases belong in the master installer.
 
 ## Repository dependencies
 
@@ -25,6 +25,7 @@ See the full cross-repository map in
 - Base development, desktop, multimedia, remote desktop, and terminal packages,
   including Pillow for cursor asset conversion
 - Baobab (GNOME Disk Usage Analyzer), enabled in the default installation menu
+- GParted partition editor, enabled as a default-on selectable component
 - Google Chrome
 - Balena Etcher
 - SmartGit from the pinned official Linux archive
@@ -105,7 +106,7 @@ python3 -m py_compile tests/*.py
 ## Module Layout
 
 - `lib/apt_packages.sh`: APT cache management and selectable package groups,
-  including the opt-in essential hardware support group
+  including GParted and the opt-in essential hardware support group
 - `lib/app_installer.sh`: Chrome, Etcher, SmartGit, and GitHub CLI installation
 - `lib/albert_installer.sh`: Albert OBS series detection, installation, and autostart
 - `lib/snap_installer.sh`: Snap application installation
@@ -144,10 +145,22 @@ terminal; the master installer drives it non-interactively.
 
 ```bash
 bash install.sh                 # interactive component selection (TTY), else defaults
+bash install.sh --config NAME   # load installation_configs/NAME
 bash install.sh --default       # install all default-on components, no prompts
 bash install.sh --all           # install every component, no prompts
 bash install.sh --select a,b    # install exactly these component ids
-bash install.sh --list-components  # print: id<TAB>label<TAB>default
+bash install.sh --auth          # allow authenticated Git clone/pull in components
+bash install.sh --list-components  # print component ids, labels, defaults, and sections
+bash install.sh --list-configurable-components
+                                # list components with nested detail screens
+bash install.sh --list-select-configure-components
+                                # list components that configure on selection
+bash install.sh --list-component-config-values
+                                # list editable component values
+bash install.sh --configure-component ID
+                                # open one component's nested detail screen
+bash install.sh --export-selection  # export resolved selection as JSON
+bash install.sh --help          # show all installer options
 bash install.sh --list-favorite-components
                                 # print app components that can be dock favourites
 bash install.sh --list-startup-components
@@ -155,7 +168,9 @@ bash install.sh --list-startup-components
 ```
 
 In the interactive menu, **space** toggles a component, `a`/`n` select all
-or none, and **Enter** installs the selection. Components:
+or none, and **Enter** installs the selection. GParted is enabled by default.
+To select only it in a future installer run, use
+`sudo bash install.sh --select gparted`. Components:
 
 When run through the master installer, app components that can become GNOME dock
 favourites expose their `.desktop` ids through `--list-favorite-components`. The
@@ -207,6 +222,7 @@ applications supports the master menu's `[S]` startup action.
 | `easyeffects` | EasyEffects audio effects | on |
 | `remote_desktop` | Remmina remote desktop client | on |
 | `baobab` | Baobab disk usage analyzer | on |
+| `gparted` | GParted partition editor | on |
 | `tmux` | tmux terminal multiplexer | on |
 | `virtualization` | KVM/libvirt virtualization stack | on |
 | `chrome` | Google Chrome | on |
