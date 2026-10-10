@@ -106,12 +106,21 @@ lis_install_snap_discord()    { install_snap_apps "${SNAP_DISCORD[@]}"; }
 # lis_install_nvidia - install NVIDIA drivers and enable their services only
 # when an NVIDIA GPU is present; otherwise report and skip.
 lis_install_nvidia() {
+  # Delegate NVIDIA setup and propagate policy deployment failures.
+  # Parameters: none.
+  # Returns: driver setup status, or zero when no hardware is detected.
+  printf '%s\n' 'parameters=none'
+  local result=0
   if nvidia_gpu_detected; then
-    install_nvidia_drivers
-    enable_nvidia_services
+    install_nvidia_drivers || result=$?
+    if [ "$result" -eq 0 ]; then
+      enable_nvidia_services || result=$?
+    fi
   else
     msg "No NVIDIA GPU detected — skipping driver installation"
   fi
+  printf '%s\n' "$result"
+  return "$result"
 }
 
 # LIS_DESKTOP_APPS - Single desktop-application action-metadata table.
