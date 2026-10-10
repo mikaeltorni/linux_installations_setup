@@ -1,0 +1,9 @@
+// Updating NVIDIA userspace while its old kernel module is loaded breaks NVML
+// and taskbar GPU readings. Schedule driver updates manually with a reboot.
+// Append exclusions; retain unrelated automatic security updates and policies.
+Unattended-Upgrade::Package-Blacklist {
+    "^nvidia-";
+    "^libnvidia-";
+    "^xserver-xorg-video-nvidia-";
+    "^linux-(modules|objects|signatures)-nvidia-";
+};

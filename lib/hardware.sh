@@ -33,7 +33,57 @@ choose_nvidia_driver_package() {
   fi
 }
 
+configure_nvidia_update_policy() {
+  # Install the additive NVIDIA unattended-update exclusion.
+  # Parameters: none.
+  # Returns: zero on deployment or privilege deferral, otherwise install status.
+  printf '%s\n' 'parameters=none'
+  local source_file="$SCRIPT_DIR/assets/apt/52nvidia-session-safety"
+  local destination="${LIS_NVIDIA_APT_CONFIG_DIR:-/etc/apt/apt.conf.d}/52nvidia-session-safety"
+  local result=0 command_text
+  if is_root; then
+    install -D -m 0644 "$source_file" "$destination" || result=$?
+  else
+    printf -v command_text 'sudo install -D -m 0644 %q %q' "$source_file" "$destination"
+    note_sudo_required "$command_text"
+  fi
+  printf '%s\n' "$result"
+  return "$result"
+}
+
+check_nvidia_driver_health() {
+  # Report NVML failures without disrupting a running desktop.
+  # Parameters: none.
+  # Returns: zero; newly installed drivers may need user-controlled activation.
+  printf '%s\n' 'parameters=none'
+  local output
+  if command -v nvidia-smi >/dev/null 2>&1; then
+    if output="$(nvidia-smi -L 2>&1)"; then
+      msg "NVIDIA GPU query succeeded: $output"
+    else
+      msg "NVIDIA GPU query failed: $output"
+      if [[ "$output" == *"Driver/library version mismatch"* ]]; then
+        msg "The loaded NVIDIA kernel driver differs from its updated libraries. Save your work and reboot when ready to restore nvidia-smi and taskbar GPU readings."
+      else
+        msg "Check NVIDIA driver installation and kernel logs before relying on GPU readings."
+      fi
+    fi
+  fi
+  printf '%s\n' 0
+  return 0
+}
+
 install_nvidia_drivers() {
+  # Install the driver and CUDA packages after applying update protection.
+  # Parameters: none.
+  # Returns: policy deployment status, or zero after best-effort package setup.
+  printf '%s\n' 'parameters=none'
+  local result=0
+  configure_nvidia_update_policy || result=$?
+  if [ "$result" -ne 0 ]; then
+    printf '%s\n' "$result"
+    return "$result"
+  fi
   msg "Installing NVIDIA drivers and CUDA toolkit"
   local driver_package
   driver_package="$(choose_nvidia_driver_package)"
@@ -46,6 +96,9 @@ install_nvidia_drivers() {
   fi
   apt_install cuda-toolkit || true
   apt_install nvidia-cuda-dev nvidia-cuda-toolkit || true
+  check_nvidia_driver_health
+  printf '%s\n' 0
+  return 0
 }
 
 enable_nvidia_services() {
