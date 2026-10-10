@@ -38,7 +38,8 @@ See the full cross-repository map in
 - Optional author-system Bluetooth workaround: backs up GRUB defaults and
   selects the installed 6.17.0-40-generic kernel for the next boot. It is off
   by default and never reboots the machine itself.
-- NVIDIA drivers and CUDA packages when NVIDIA hardware is detected
+- NVIDIA drivers and CUDA packages when NVIDIA hardware is detected, with
+  protection against unattended driver replacement during a desktop session
 
 ## Requirements
 
@@ -75,6 +76,7 @@ The following environment variables are supported:
 | `ETCHER_VERSION` | Balena Etcher release to install, or `latest` | `latest` |
 | `BLUETOOTH_KERNEL_VERSION` | Kernel selected by the opt-in Bluetooth fix | `6.17.0-40-generic` (author system) |
 | `NVIDIA_DRIVER_PACKAGE` | Override automatic NVIDIA driver selection | Auto-detected |
+| `LIS_NVIDIA_APT_CONFIG_DIR` | Override NVIDIA update-policy destination for isolated testing | `/etc/apt/apt.conf.d` |
 | `ALBERT_OBS_SERIES` | Override the Albert OBS Ubuntu series | Auto-detected |
 | `INSTALLER_REQUIRE_GITHUB_LOGIN` | Force GitHub login even without a TTY | `0` |
 | `INSTALLER_NO_REBOOT` | Skip the final reboot when set to `1` | `0` |
@@ -91,6 +93,7 @@ The tests simulate helper behavior and do not install packages:
 
 ```bash
 python3 tests/test_apt_helpers.py
+python3 tests/test_nvidia_updates.py
 for test_file in tests/*.sh; do
   bash "$test_file"
 done
@@ -110,7 +113,10 @@ python3 -m py_compile tests/*.py
 - `lib/app_installer.sh`: Chrome, Etcher, SmartGit, and GitHub CLI installation
 - `lib/albert_installer.sh`: Albert OBS series detection, installation, and autostart
 - `lib/snap_installer.sh`: Snap application installation
-- `lib/hardware.sh`: NVIDIA detection, driver selection, and service setup
+- `lib/hardware.sh`: NVIDIA detection, driver selection, update policy, NVML
+  health reporting, and service setup
+- `assets/apt/52nvidia-session-safety`: additive unattended-upgrade exclusions
+  for NVIDIA drivers, libraries, and versioned kernel-module packages
 - `lib/bluetooth.sh`: GRUB backup and one-time kernel selection for Bluetooth
 - `lib/inotify_limits.sh`: sysctl drop-in raising inotify instances/watches
 - `lib/apt_helpers.sh`: Compatibility entry that sources package and app installers
@@ -135,6 +141,62 @@ python3 -m py_compile tests/*.py
   `BLUETOOTH_KERNEL_VERSION` to target a different installed kernel.
 - Extension `metadata.json` pinning lives in `linux_configuration_setup`
   (`lcs-tools patch-metadata`), not in this repository.
+
+## NVIDIA driver updates and GPU readings
+
+The `nvidia` component installs
+`/etc/apt/apt.conf.d/52nvidia-session-safety` before installing drivers.
+It excludes NVIDIA driver packages, `libnvidia-*`, the NVIDIA Xorg driver,
+and NVIDIA kernel-module/object/signature packages from unattended upgrades.
+Other automatic security updates and existing package exclusions remain enabled.
+This uses the upstream
+[`Unattended-Upgrade::Package-Blacklist`](https://github.com/mvo5/unattended-upgrades#supported-options)
+setting; it does not hold packages or prevent manual APT updates.
+
+NVIDIA updates, including driver security fixes, must now be applied manually
+when you can save your work and restart afterward. A manual driver update can
+still produce a temporary mismatch until reboot. A full system upgrade or the
+graphical updater can update these packages too, so schedule those accordingly.
+
+Install or reconfigure just this component without an automatic reboot:
+
+```bash
+sudo INSTALLER_NO_REBOOT=1 bash install.sh --select nvidia
+sudo INSTALLER_NO_REBOOT=1 bash install.sh --reconfigure nvidia
+```
+
+For an existing installation that only needs the prevention policy, run from
+this repository's root:
+
+```bash
+sudo install -D -m 0644 assets/apt/52nvidia-session-safety /etc/apt/apt.conf.d/52nvidia-session-safety
+apt-config dump | grep 'Unattended-Upgrade::Package-Blacklist'
+```
+
+The policy takes effect for the next unattended-upgrade run without a service
+restart. Policy deployment failures stop NVIDIA package installation. The
+policy helper records an exact sudo command when called without privileges;
+the full base-system installer still requires root.
+
+If `nvidia-smi` reports `Driver/library version mismatch`, compare the running
+module with the installed one:
+
+```bash
+cat /proc/driver/nvidia/version
+modinfo -F version nvidia
+dkms status
+```
+
+When the updated module is installed for the kernel you will boot, save your
+work and restart through the desktop. Do not unload the driver used by the
+running graphical session. After login, verify `nvidia-smi -L` and taskbar GPU
+readings. If they still fail, inspect kernel/DKMS logs; do not repeatedly
+reinstall drivers or clear taskbar device settings. The installer reports
+NVML failures and gives reboot guidance specifically for a version mismatch.
+
+To restore automatic NVIDIA updates later, remove only
+`/etc/apt/apt.conf.d/52nvidia-session-safety`; existing APT configuration is
+retained.
 
 ## Component selection
 
