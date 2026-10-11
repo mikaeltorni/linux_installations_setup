@@ -242,6 +242,8 @@ favourites expose their `.desktop` ids through `--list-favorite-components`. The
 master menu lets you toggle those with **f** and forwards the selected list to
 `linux_configuration_setup`.
 Baobab is selected as a dock favorite by default.
+Spotify and Discord remain installed and startup-enabled by default, but are
+not selected as dock favorites; choose **f** in the master menu to pin either.
 
 VLC, OBS, and EasyEffects now have separate components and expose individual
 startup launcher candidates through
