@@ -252,21 +252,34 @@ run_tests() {
     )
   }
 
+  # favorite_defaults_preserve_existing_dock — Check public install-selection
+  # defaults and preserve the existing dock entries for unrelated apps.
+  # Parameters: none. Returns: zero when the public defaults match expectations.
   favorite_defaults_preserve_existing_dock() {
-    # Keep apps outside the selected clean-install dock off unless they are
-    # deliberately added as a default favorite, like Baobab.
-    ( load_env
-      local output
-      output="$(lis_list_favorite_components)"
-      grep -qx $'vlc\tvlc.desktop\toff' <<<"$output"
-      grep -qx $'etcher\tbalena-etcher.desktop,balenaEtcher.desktop\toff' <<<"$output"
-      grep -qx $'albert\talbert.desktop\toff' <<<"$output"
-      grep -qx $'terminal\tkitty.desktop\ton' <<<"$output"
-      grep -qx $'chrome\tgoogle-chrome.desktop,com.google.Chrome.desktop\ton' <<<"$output"
-      grep -qx $'snap_spotify\tspotify.desktop,spotify_spotify.desktop\ton' <<<"$output"
-      grep -qx $'smartgit\tsmartgit.desktop\ton' <<<"$output"
-      grep -qx $'baobab\torg.gnome.baobab.desktop\ton' <<<"$output"
+    printf 'parameters=none\n'
+    local result
+    (
+      local favorites components startup
+      favorites="$(bash "$PROJECT_DIR/install.sh" --list-favorite-components)"
+      components="$(bash "$PROJECT_DIR/install.sh" --list-components)"
+      startup="$(bash "$PROJECT_DIR/install.sh" --list-startup-components)"
+      grep -qx $'vlc\tvlc.desktop\toff' <<<"$favorites" || exit 1
+      grep -qx $'etcher\tbalena-etcher.desktop,balenaEtcher.desktop\toff' <<<"$favorites" || exit 1
+      grep -qx $'albert\talbert.desktop\toff' <<<"$favorites" || exit 1
+      grep -qx $'terminal\tkitty.desktop\ton' <<<"$favorites" || exit 1
+      grep -qx $'chrome\tgoogle-chrome.desktop,com.google.Chrome.desktop\ton' <<<"$favorites" || exit 1
+      grep -qx $'snap_spotify\tspotify.desktop,spotify_spotify.desktop\toff' <<<"$favorites" || exit 1
+      grep -qx $'snap_discord\tdiscord.desktop,discord_discord.desktop\toff' <<<"$favorites" || exit 1
+      grep -qx $'snap_spotify\tSpotify (snap)\ton\tDesktop applications' <<<"$components" || exit 1
+      grep -qx $'snap_discord\tDiscord (snap)\ton\tDesktop applications' <<<"$components" || exit 1
+      grep -qx $'snap_spotify\tspotify.desktop|spotify_spotify.desktop\ton\t1' <<<"$startup" || exit 1
+      grep -qx $'snap_discord\tdiscord.desktop|discord_discord.desktop\ton\t1' <<<"$startup" || exit 1
+      grep -qx $'smartgit\tsmartgit.desktop\ton' <<<"$favorites" || exit 1
+      grep -qx $'baobab\torg.gnome.baobab.desktop\ton' <<<"$favorites"
     )
+    result=$?
+    printf '%s\n' "$result"
+    return "$result"
   }
 
   startup_monitor_defaults_pin_media_apps_to_monitor_one() {
