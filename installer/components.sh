@@ -47,7 +47,7 @@ ISC_COMPONENTS=(
   "virtualization|KVM/libvirt virtualization stack|on|lis_install_virtualization|detect_virtualization||Desktop applications"
   "chrome|Google Chrome|on|install_google_chrome|detect_chrome|uninstall_chrome|Desktop applications"
   "etcher|balenaEtcher|on|install_balena_etcher|detect_etcher|uninstall_etcher|Desktop applications"
-  "smartgit|SmartGit|on|install_smartgit|detect_smartgit|uninstall_smartgit|Desktop applications"
+  "smartgit|SmartGit|off|install_smartgit|detect_smartgit|uninstall_smartgit|Desktop applications"
   "snap_gitkraken|GitKraken (snap)|on|lis_install_snap_gitkraken|detect_snap_gitkraken|uninstall_snap_gitkraken|Desktop applications"
   "snap_spotify|Spotify (snap)|on|lis_install_snap_spotify|detect_snap_spotify|uninstall_snap_spotify|Desktop applications"
   "snap_discord|Discord (snap)|on|lis_install_snap_discord|detect_snap_discord|uninstall_snap_discord|Desktop applications"
