@@ -28,7 +28,7 @@ See the full cross-repository map in
 - GParted partition editor, enabled as a default-on selectable component
 - Google Chrome
 - Balena Etcher
-- SmartGit from the pinned official Linux archive
+- SmartGit, available as an opt-in component, from the pinned official Linux archive
 - GitKraken, Spotify, and Discord through Snap
 - GitHub CLI, with optional interactive authentication
 - Albert launcher
@@ -229,6 +229,9 @@ bash install.sh --list-startup-components
                                 # print app startup metadata and defaults
 ```
 
+SmartGit is off for `--default` installs and remains available through
+`--select smartgit`. Changing this default does not uninstall an existing copy.
+
 In the interactive menu, **space** toggles a component, `a`/`n` select all
 or none, and **Enter** installs the selection. GParted is enabled by default.
 To select only it in a future installer run, use
@@ -289,7 +292,7 @@ applications supports the master menu's `[S]` startup action.
 | `virtualization` | KVM/libvirt virtualization stack | on |
 | `chrome` | Google Chrome | on |
 | `etcher` | balenaEtcher | on |
-| `smartgit` | SmartGit (official Linux archive) | on |
+| `smartgit` | SmartGit (official Linux archive) | off (opt-in) |
 | `snap_gitkraken` | GitKraken (snap) | on |
 | `snap_spotify` | Spotify (snap) | on |
 | `snap_discord` | Discord (snap) | on |
