@@ -144,15 +144,18 @@ source "$SCRIPT_DIR/installer/components.sh"
 
 INSTALLER_NO_REBOOT="${INSTALLER_NO_REBOOT:-0}"
 
-# main_inner — install the selected base-system components. Selection (root
-# preflight, NVIDIA detection, etc.) is resolved by component_main.
+# Apply the accepted plan or the retained legacy FEATURES selection.
+# Parameters: $@ - already validated installer arguments. Returns: selected operation status.
 main_inner() {
+  printf 'arguments=%s\n' "$*" >&2
   msg "=== Linux Installation Setup ==="
   
   # Feature-specific installation support (--features=feature1,feature2,...)
   SELECTED_FEATURES="${FEATURES:-}"
   
-  if [ -n "$SELECTED_FEATURES" ]; then
+  if [[ "${_LIS_PLAN_READY:-0}" == 1 ]]; then
+    _isc_apply_plan "$ISC_ARGUMENT_ORIGIN"
+  elif [ -n "$SELECTED_FEATURES" ]; then
     IFS="," read -ra FEATURE_ARRAY <<< "$SELECTED_FEATURES"
     msg "Feature filter active: ${FEATURE_ARRAY[*]}"
     
@@ -193,10 +196,27 @@ main_inner() {
   
   local rc=$?
   msg "=== Linux Installation Setup Complete ==="
-  return $rc
+  printf '%s\n' "$rc" >&2
+  return "$rc"
 }
 
+# Resolve terminal selection before piping installation output or scheduling reboot.
+# Parameters: $@ - already parsed installer arguments. Returns: zero on completion or cancellation.
 run_and_log_with_reboot() {
+  printf 'arguments=%s\n' "$*" >&2
+  if [[ -z "${FEATURES:-}" ]]; then
+    isc_plan_install
+    case "$ISC_PLAN_ACTION" in
+      cancel) printf '0\n' >&2; return 0 ;;
+      remove)
+        local remove_rc
+        _isc_apply_plan "$ISC_ARGUMENT_ORIGIN"; remove_rc=$?
+        printf '%s\n' "$remove_rc" >&2
+        return "$remove_rc"
+        ;;
+    esac
+    _LIS_PLAN_READY=1
+  fi
   local ts log_dir log_file
   ts=$(date +"%Y%m%d-%H%M%S")
   log_dir="$SCRIPT_DIR/.log"
@@ -211,6 +231,8 @@ run_and_log_with_reboot() {
   else
     safe_system_action reboot
   fi
+  printf '0\n' >&2
+  return 0
 }
 
 if [[ "${BASH_SOURCE[0]}" == "${0}" ]]; then
@@ -219,7 +241,7 @@ if [[ "${BASH_SOURCE[0]}" == "${0}" ]]; then
     case "${1:-}" in
       --list-favorite-components) lis_list_favorite_components; exit $? ;;
       --list-startup-components) lis_list_startup_components; exit $? ;;
-      --list-components|--export-selection|--detect|--help|-h|--uninstall|--uninstall=*) component_main "$@"; exit $? ;;
     esac
+    if isc_route_readonly_args "$@"; then exit $?; fi
     run_and_log_with_reboot "$@"
 fi
