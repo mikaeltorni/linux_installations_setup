@@ -1,11 +1,27 @@
-# Linux Installation Setup
+# Linux Installation Setup — Ubuntu GNOME package installer
 
-> Part of [installation_scripts](https://github.com/mikaeltorni/installation_scripts) — the master installer that orchestrates a productivity-focused Ubuntu 24.04 desktop setup (workspaces, hotkeys, window tiling, programming tools, and more). Tested on Ubuntu 24.04.4 LTS.
+Linux Installation Setup is an Ubuntu GNOME package installer for workstation users who want
+selectable base utilities, desktop apps, and hardware support.
 
-The public entrypoint, `install.sh`, installs the base desktop packages and
-applications used on an Ubuntu GNOME workstation. This repository is phase 1 of
-the larger installation workflow; repository cloning and later configuration
-phases belong in the master installer.
+[![Last commit: 2026-11-24](docs/badges/last-commit.svg)](https://github.com/mikaeltorni/linux_installations_setup/commits/master) [![Commits in 30 days: 6 as of 2026-11-25](docs/badges/commit-activity.svg)](https://github.com/mikaeltorni/linux_installations_setup/graphs/commit-activity) [![Open issues: 0 as of 2026-11-25](docs/badges/issues.svg)](https://github.com/mikaeltorni/linux_installations_setup/issues)
+
+Activity snapshot from GitHub’s default branch on 2026-11-25.
+
+[Packages](#what-it-installs) · [Requirements](#requirements) · [Configuration](#configuration) · [Tests](#tests) · [Installer commands](#installer-lifecycle) · [MIT license](LICENSE.md)
+
+## Quick start
+
+Run from the checkout in the target user's Ubuntu desktop terminal. System packages require sudo.
+
+```bash
+bash install.sh --list-components
+sudo INSTALLER_NO_REBOOT=1 bash install.sh --select git
+git --version
+```
+
+The Ubuntu 24.04.5 GNOME 46 X11 workstation VM installed and detected the profile's package prerequisites on two runs.
+
+[Installation Scripts](https://github.com/mikaeltorni/installation_scripts) can also run this installer as part of the Ubuntu setup chain.
 
 ## Repository dependencies
 
