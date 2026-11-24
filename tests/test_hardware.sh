@@ -16,7 +16,7 @@ USER_BUS="unix:path=${RUNTIME_DIR}/bus"
 
 INSTALLER_LOG_LEVEL=error
 source "$PROJECT_DIR/lib/logging.sh"
-source "${ISC_FUNCTIONS_DIR:-$PROJECT_DIR/../linux_installation_scripts_functions}/installer_helpers.sh"
+source "${ISC_FUNCTIONS_DIR:-$PROJECT_DIR/.installer-support}/installer_helpers.sh"
 source "$PROJECT_DIR/lib/apt_helpers.sh"
 source "$PROJECT_DIR/lib/hardware.sh"
 
