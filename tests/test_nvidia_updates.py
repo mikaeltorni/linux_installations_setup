@@ -8,7 +8,7 @@ import tempfile
 import unittest
 
 PROJECT = Path(__file__).resolve().parents[1]
-FRAMEWORK = Path.home() / "projects/linux_installation_scripts_functions"
+FRAMEWORK = PROJECT / ".installer-support"
 
 
 def run_installer(directory, arguments, privileged=True, smi_status=0):
@@ -189,8 +189,8 @@ class NvidiaUpdatesTests(unittest.TestCase):
                 self.assertFalse((directory / "apt.conf.d").exists())
         print(None)
 
-    def test_extra_operands_preserve_shared_cli_contract(self):
-        """Retain the framework's warning for extra positional operands.
+    def test_extra_operands_are_rejected_before_nvidia_changes(self):
+        """Reject extra positional operands without installing or configuring drivers.
 
         Parameters: self - test instance.
         Returns: None.
@@ -198,9 +198,12 @@ class NvidiaUpdatesTests(unittest.TestCase):
         print(f"self={object.__repr__(self)}")
         for operation in ("--select", "--reconfigure"):
             with tempfile.TemporaryDirectory() as temporary:
-                result = run_installer(Path(temporary), [operation, "nvidia", "extra"])
-                self.assertEqual(result.returncode, 0, result.stderr)
-                self.assertIn("ignoring unknown argument: extra", result.stdout)
+                directory = Path(temporary)
+                result = run_installer(directory, [operation, "nvidia", "extra"])
+                self.assertEqual(result.returncode, 2, result.stderr)
+                self.assertIn("unknown option or argument: extra", result.stderr)
+                self.assertFalse((directory / "apt.calls").exists())
+                self.assertFalse((directory / "apt.conf.d").exists())
         print(None)
 
 
