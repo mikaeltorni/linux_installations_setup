@@ -3,9 +3,9 @@
 Linux Installation Setup is an Ubuntu GNOME package installer for workstation users who want
 selectable base utilities, desktop apps, and hardware support.
 
-[![Last commit: 2026-11-24](docs/badges/last-commit.svg)](https://github.com/mikaeltorni/linux_installations_setup/commits/master) [![Commits in 30 days: 6 as of 2026-11-25](docs/badges/commit-activity.svg)](https://github.com/mikaeltorni/linux_installations_setup/graphs/commit-activity) [![Open issues: 0 as of 2026-11-25](docs/badges/issues.svg)](https://github.com/mikaeltorni/linux_installations_setup/issues)
-
-Activity snapshot from GitHub’s default branch on 2026-11-25.
+[![Last commit](https://img.shields.io/github/last-commit/mikaeltorni/linux_installations_setup)](https://github.com/mikaeltorni/linux_installations_setup/commits/master)
+[![Commit activity](https://img.shields.io/github/commit-activity/m/mikaeltorni/linux_installations_setup)](https://github.com/mikaeltorni/linux_installations_setup/graphs/commit-activity)
+[![Issues](https://img.shields.io/github/issues/mikaeltorni/linux_installations_setup)](https://github.com/mikaeltorni/linux_installations_setup/issues)
 
 [Packages](#what-it-installs) · [Requirements](#requirements) · [Configuration](#configuration) · [Tests](#tests) · [Installer commands](#installer-lifecycle) · [MIT license](LICENSE.md)
 
@@ -21,8 +21,6 @@ git --version
 
 The Ubuntu 24.04.5 GNOME 46 X11 workstation VM installed and detected the profile's package prerequisites on two runs.
 
-[Installation Scripts](https://github.com/mikaeltorni/installation_scripts) can also run this installer as part of the Ubuntu setup chain.
-
 ## Repository dependencies
 
 This repository installs and runs **standalone** — it has no hard dependency on
@@ -32,8 +30,7 @@ any sibling setup repository.
   `.installer-support/`, with its license and verifiable source manifest.
   Framework discovery works offline without a private checkout or credentials.
 
-See the full cross-repository map in
-[installation_scripts/DEPENDENCIES.md](https://github.com/mikaeltorni/installation_scripts/blob/master/DEPENDENCIES.md).
+[Linux Configuration Setup](https://github.com/mikaeltorni/linux_configuration_setup) applies desktop settings after the base packages are in place.
 
 ## What It Installs
 
@@ -216,7 +213,7 @@ retained.
 ## Component selection
 
 This repository's `install.sh` participates in the shared installer
-component menu (see the [`installation_scripts`](https://github.com/mikaeltorni/installation_scripts)
+component menu (see the `installation_scripts`
 master installer). Run standalone, it offers an interactive submenu on a
 terminal; the master installer drives it non-interactively.
 
@@ -348,6 +345,28 @@ You are solely responsible for determining whether this software is suitable, sa
 The authors and copyright holders make no guarantees regarding security, reliability, availability, correctness, compliance, non-infringement, or fitness for any particular purpose.
 
 This notice is intended to clarify the nature of the project and does not impose additional restrictions beyond the MIT License.
+
+## Ubuntu GNOME package installer FAQ
+
+### How do I list the available Ubuntu packages and tools?
+
+Run `bash install.sh --list-components` first. The output includes each component ID, its label, and whether it is enabled by default.
+
+### Can I install only the Git tooling?
+
+Run `sudo INSTALLER_NO_REBOOT=1 bash install.sh --select git` from the target desktop user's terminal. Check the result with `git --version`.
+
+### Why does package installation need sudo?
+
+APT-managed components modify the system package database. Run the package installer in the target user's graphical session so any user-level configuration uses that session.
+
+### How can I confirm what the installer selected?
+
+Run `bash install.sh --export-selection` to get JSON for the resolved selection. To query current install state instead, run `bash install.sh --detect`.
+
+### Where are package installer logs saved?
+
+The installer writes timestamped output under `.log/` in the checkout. Check the latest log and the selected component’s section if APT reports a failure.
 
 ## Installer lifecycle
 
